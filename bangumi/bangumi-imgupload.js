@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name         文件上传
-// @namespace    *
+// @name         bamgumi图片上传
+// @namespace    https://github.com/shadowdreamer/jioben
 // @version      0.1
 // @description
-// @author       You
-// @match        http://192.168.0.105:8000/
+// @author       dovahkiin
+// @include     /^https?:\/\/(bgm\.tv|bangumi\.tv|chii\.in)\/(ep|blog|subject\/topic|group\/topic)\//
 // @grant        GM_xmlhttpRequest
 // @require      https://cdn.bootcss.com/vue/2.6.8/vue.min.js
 // ==/UserScript==
@@ -36,7 +36,7 @@
     data: {
         message: "上传文件:",
         fromData:null,
-        url:"11111",
+        url:"",
         withImgTag:true,
         uploading:false,
         },
@@ -88,9 +88,10 @@ style.innerHTML = `
         min-height:100px;
         width:300px;
         padding:15px;
-        bottom:15px;
+        bottom:35px;
         right:20px;
         box-shadow:0 0 15px #aaa;
+        z-index:100;
     }
     .url-box{
         cursor: pointer;
