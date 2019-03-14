@@ -1,11 +1,10 @@
 // ==UserScript==
-// @name         bamgumi图片上传
+// @name         test图片上传
 // @namespace    https://github.com/shadowdreamer/jioben
 // @version      0.1
-// @description 上传图片到牛拍云，catbox,管理历史上传记录
+// @description 上传图片到niupic，catbox,管理历史上传记录
 // @author       dovahkiin
-// @include      http*://bgm.tv*
-// @include      http*://bangumi.tv*
+// @include      file:///E:/jing/test/*
 // @grant         GM_xmlhttpRequest
 // @require      https://cdn.bootcss.com/vue/2.6.8/vue.min.js
 // ==/UserScript==
@@ -24,40 +23,61 @@
             <select  v-model="uploadApi" >
                 <option value="niupic">niupic</option>
                 <option value="catbox">Catbox</option>
+                <option value="sm.ms">sm.ms</option>
             </select>
+
+            <div
+                class = "drop-area"
+                contenteditable="true"
+                @dragenter.stop.prevent = " dropArea = '' "
+                @dragover.stop.prevent
+                @drop.stop.prevent = "dodrop($event)"
+                @paste.stop.prevent = "pasteEvt($event)"
+                >
+                <p v-for="notice in notices">{{notice}}</p>
+
+            </div>
+
             <input
                 type="file"
+                multiple="multiple"
+                :files = "file"
                 accept="image/gif, image/jpeg, image/jpg, image/png"
                 @change="change($event)"
             >
-            <input type="button" value="upload" @click="upload">
+            <input type="button" value="上传" @click="pushToUpload"/>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="button" value="清空" @click="file = null"/>
 
-            <div v-show="uploading" class="url-box">在传了....</div>
-            <div v-show="!!url" class="url-box">
-                <input :value="urlWithTag" id="img-url" readonly>
-                <input type="button" value="点击复制" @click="copyToClipboard()">
+
+            <div class="url-box"  v-for="(imgurl,index) in url"  :key = "index">
+                <input :value="imgurl | addWithTag" :id="'img-url-' + index" readonly>
+                <input type="button" value="点击复制" @click="copyToClipboard('img-url-' + index)">
             </div>
+
+
+
         </div>
     </transition>
     <transition name="warp">
         <div class="imgupload-warp history-layout" v-show="openHistory">
             <ul>
-                <li v-for="(url,index) in urlList" :key="index">
+                <li v-for="(url,index) in urlList" :key="index" class = "img-history-list">
                     <img :src="url | addHttp">
-                    <button @click="deleteThisImg(index)">删除</button>
+                    <button @click="deleteThisImg(index)" >删除</button>
                 </li>
             </ul>
         </div>
     </transition>
 </div>`
 
-    const app = new Vue({
+    new Vue({
         el: "#imgupload",
         data() {
             return {
                 message: "上传文件:",
                 file: null,
-                url: "",
+                url: [],
                 uploading: false,
                 open: false,
                 openHistory: false,
@@ -66,56 +86,87 @@
             };
         },
         computed: {
-            urlWithTag() {
-                return `[img]${this.url}[/img]`;
+            notices() {
+                let notice = [];
+                if (!this.file) {
+                    return ['拖动或者粘贴文件到此处', '只能粘贴剪贴板图片(如qq截图)', '支持多个文件']
+                } else {
+                    function renderSize(value) {
+                        if (!value) {
+                            return "0 Bytes";
+                        }
+                        var unitArr = new Array("Bytes", "KB", "MB", "GB", "TB");
+                        var index = 0;
+                        var srcsize = parseFloat(value);
+                        index = Math.floor(Math.log(srcsize) / Math.log(1024));
+                        var size = srcsize / Math.pow(1024, index);
+                        size = size.toFixed(2);//保留的小数位数
+                        return size + unitArr[index];
+                    }
+                    Array.prototype.forEach.call(this.file, el => {
+                        notice.push(el.name + ',' + renderSize(el.size))
+                    })
+                }
+                return notice
             }
         },
         methods: {
-            change(e) {
-                this.file = e.target.files[0];
-                this.url = '';
+            pushToUpload() {
+                if (!this.file) return;
+                this.url = Array.from({ length: this.file.length }, () => '')
+                Array.prototype.forEach.call(this.file, (el, index) => {
+                    this.upload(el, index)
+                })
             },
-            upload() {
-                const _this = this;
+            upload(file, index) {
                 const formData = new FormData();
-                let url = "";
-                this.uploading = true;
+                let api = "";
                 switch (this.uploadApi) {
                     case "niupic":
-                        url = "https://www.niupic.com/api/upload";
-                        formData.append("image_field", this.file);
+                        api = "https://www.niupic.com/api/upload";
+                        formData.append("image_field", file);
                         break;
                     case "catbox":
-                        url = "https://catbox.moe/user/api.php";
-                        formData.append("fileToUpload", this.file)
+                        api = "https://catbox.moe/user/api.php";
+                        formData.append("fileToUpload", file)
                         formData.append("reqtype", "fileupload")
                         break;
+                    case "sm.ms":
+                        api = "https://sm.ms/api/upload";
+                        formData.append("smfile", file)
+                        break;
                 }
-                GM_xmlhttpRequest({
-                    url: url,
-                    method: "post",
-                    data: formData,
-                    onload: res => {
-                        this.uploading = false;
-                        console.log(res)
-                        if (res.status == 200) {
-                            switch (this.uploadApi) {
-                                case "niupic":
-                                    this.url = JSON.parse(res.responseText).img_puburl;
-                                    break;
-                                case "catbox":
-                                    this.url = res.responseText;
-                                    break;
+                new Promise((resove) => {
+                    GM_xmlhttpRequest({
+                        url: api,
+                        method: "post",
+                        data: formData,
+                        onload: res => {
+                            if (res.status == 200) {
+                                switch (this.uploadApi) {
+                                    case "niupic":
+                                        resove(JSON.parse(res.responseText).img_puburl)
+                                        break;
+                                    case "catbox":
+                                        resove(res.responseText)
+                                        break;
+                                    case "sm.ms":
+                                        resove(JSON.parse(res.responseText).data.url)
+                                        break;
+                                }
+
+                            } else {
+                                resove('失败')
                             }
-                            this.saveToLocal(this.url);
-                        } else {
-                            this.url = "失败";
                         }
-                    }
-                });
+                    });
+                }).then((url) => {
+                    this.url[index] = url;
+                    this.saveToLocal(this.url[index]);
+                })
             },
-            copyToClipboard() {
-                let focus = document.getElementById("img-url");
+            copyToClipboard(id) {
+                let focus = document.getElementById(id);
                 focus.select();
                 document.execCommand("copy");
             },
@@ -127,15 +178,32 @@
                 this.urlList.splice(index, 1);
                 localStorage.setItem("imgUrl", JSON.stringify(this.urlList));
             },
+
+            dodrop(ev) {
+                this.file = ev.dataTransfer.files
+                this.url = []
+            },
+            pasteEvt(ev) {
+                this.file = ev.clipboardData.files
+                this.url = []
+            },
+            change(ev) {
+                this.file = ev.target.files;
+                this.url = []
+            },
         },
-        filters:{
-            addHttp(url){
-                if(/^http(s)?/.test(url)){
+        filters: {
+            addHttp(url) {
+                if (/^http(s)?/.test(url)) {
                     return url
-                }else{
-                    return "https://" +url
+                } else {
+                    return "https://" + url
                 }
-            }
+            },
+            addWithTag(url) {
+                if (!url) return '在传了.....';
+                return `[img]${url}[/img]`;
+            },
         },
         mounted() {
             if (localStorage.getItem("imgUrl")) {
@@ -174,7 +242,7 @@
 }
 .history-layout img {
 	height: 60px;
-        vertical-align: middle;
+    vertical-align: middle;
 
 }
 .url-box {
@@ -205,6 +273,25 @@
 .openHistory {
 	top: 260px;
 	right: 10px;
+}
+.drop-area{
+    min-height: 100px;
+    white-space: nowrap;
+    border: 1px solid black;
+    padding:2px;
+    background-color:#fff;
+    font-size:10px;
+    over-flow:hidden;
+}
+.img-history-list{
+    display:flex;
+    justify-content : space-between
+}
+.img-history-list:nth-of-type(2n+1){
+    background-color:#fff;
+}
+.img-history-list:nth-of-type(2n){
+    background-color:#ccc;
 }
 .warp-enter-active,
 .warp-leave-active {
