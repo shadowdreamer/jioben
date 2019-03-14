@@ -1,12 +1,12 @@
 // ==UserScript==
-// @name         test图片上传
+// @name         bangumi图片上传
 // @namespace    https://github.com/shadowdreamer/jioben
 // @version      0.2
 // @description 上传图片到niupic，catbox,管理历史上传记录
 // @author       dovahkiin
 // @include      http*://bgm.tv*
 // @include      http*://bangumi.tv*
-// @grant         GM_xmlhttpRequest
+// @grant        GM_xmlhttpRequest
 // @require      https://cdn.bootcss.com/vue/2.6.8/vue.min.js
 // ==/UserScript==
 
