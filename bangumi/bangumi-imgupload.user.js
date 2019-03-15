@@ -2,7 +2,7 @@
 // @name         bangumi图片上传
 // @namespace    https://github.com/shadowdreamer/jioben
 // @version      0.4
-// @description 上传图片到niupic，catbox,管理历史上传记录
+// @description  上传图片到niupic，catbox,管理历史上传记录
 // @author       dovahkiin
 // @include      http*://bgm.tv*
 // @include      http*://bangumi.tv*
@@ -30,7 +30,7 @@
             <div
                 class = "drop-area"
                 contenteditable="true"
-                @dragenter.stop.prevent = " dropArea = '' "
+                @dragenter.stop.prevent = " file = 'dragenter'"
                 @dragover.stop.prevent
                 @drop.stop.prevent = "dodrop($event)"
                 @paste.stop.prevent = "pasteEvt($event)"
@@ -79,7 +79,6 @@
                 message: "上传文件:",
                 file: null,
                 url: [],
-                uploading: false,
                 open: false,
                 openHistory: false,
                 urlList: [],
@@ -91,6 +90,8 @@
                 let notice = [];
                 if (!this.file) {
                     return ['拖动或者粘贴文件到此处', '只能粘贴剪贴板图片(如qq截图)', '支持多个文件']
+                } else if (this.file == 'dragenter') {
+                    return ['松手']
                 } else {
                     function renderSize(value) {
                         if (!value) {
@@ -137,28 +138,33 @@
                         formData.append("smfile", file)
                         break;
                 }
-                new Promise((resove,reject) => {
+                new Promise((resove, reject) => {
                     GM_xmlhttpRequest({
                         url: api,
                         method: "post",
                         data: formData,
-                        onprogress:ev=>{
-                            console.log(ev)
-                        },
+                        // onprogress:ev=>{
+                        //     console.log(ev)
+                        // },
                         onload: res => {
+                            let resUrl = '';
                             if (res.status == 200) {
                                 switch (this.uploadApi) {
                                     case "niupic":
-                                        resove(JSON.parse(res.responseText).img_puburl)
+                                        resUrl = JSON.parse(res.responseText).img_puburl
                                         break;
                                     case "catbox":
-                                        resove(res.responseText)
+                                        resUrl = res.responseText
                                         break;
                                     case "sm.ms":
-                                        resove(JSON.parse(res.responseText).data.url)
+                                        resUrl = JSON.parse(res.responseText).data.url
                                         break;
                                 }
-
+                                if (resUrl) {
+                                    resove(resUrl)
+                                } else {
+                                    reject('失败')
+                                }
                             } else {
                                 reject('失败')
                             }
@@ -167,7 +173,7 @@
                 }).then((url) => {
                     this.$set(this.url, index, url)
                     this.saveToLocal(url);
-                }).catch(text=>{
+                }).catch(text => {
                     this.$set(this.url, index, text)
                 })
             },
