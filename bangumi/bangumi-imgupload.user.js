@@ -8,6 +8,7 @@
 // @include      http*://bangumi.tv*
 // @grant        GM_xmlhttpRequest
 // @require      https://cdn.bootcss.com/vue/2.6.8/vue.min.js
+// noframes
 // ==/UserScript==
 
 (function () {
