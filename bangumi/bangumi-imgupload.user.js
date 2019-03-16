@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         bangumi图片上传
 // @namespace    https://github.com/shadowdreamer/jioben
-// @version      0.4
+// @version      0.5
 // @description  上传图片到niupic，catbox,管理历史上传记录
 // @author       dovahkiin
 // @include      http*://bgm.tv*
@@ -12,68 +12,11 @@
 
 (function () {
     const box = document.createElement("div");
+    box.setAttribute("id","imgupload")
+    box.innerHTML = `<img-uploader></img-uploader>`
     document.body.append(box);
-    box.innerHTML = `
-    <div id="imgupload">
-    <div class="openUpload imgupload-toggle" @click="open = !open">upload</div>
-    <div class="openHistory imgupload-toggle" @click="openHistory = !openHistory">history</div>
-    <transition name="warp">
-        <div class="imgupload-warp upload-layout" v-show="open">
-            <p>{{message}}</p>
-            <span>选择上传网站：</span>
-            <select  v-model="uploadApi" >
-                <option value="niupic">niupic</option>
-                <option value="catbox">Catbox</option>
-                <option value="sm.ms">sm.ms</option>
-            </select>
-
-            <div
-                class = "drop-area"
-                contenteditable="true"
-                @dragenter.stop.prevent = " file = 'dragenter'"
-                @dragover.stop.prevent
-                @drop.stop.prevent = "dodrop($event)"
-                @paste.stop.prevent = "pasteEvt($event)"
-                >
-                <p v-for="notice in notices">{{notice}}</p>
-
-            </div>
-
-            <input
-                type="file"
-                multiple="multiple"
-                :files = "file"
-                accept="image/gif, image/jpeg, image/jpg, image/png"
-                @change="change($event)"
-            >
-            <input type="button" value="上传" @click="pushToUpload"/>
-            &nbsp;&nbsp;&nbsp;&nbsp;
-            <input type="button" value="清空" @click="file = null"/>
-
-
-            <div class="url-box"  v-for="(imgurl,index) in url"  :key = "index">
-                <input :value="imgurl | addWithTag" :id="'img-url-' + index" readonly>
-                <input type="button" value="点击复制" @click="copyToClipboard('img-url-' + index)">
-            </div>
-
-
-
-        </div>
-    </transition>
-    <transition name="warp">
-        <div class="imgupload-warp history-layout" v-if="openHistory">
-            <ul>
-                <li v-for="(url,index) in urlList" :key="index" class = "img-history-list">
-                    <img :src="url | addHttp">
-                    <button @click="deleteThisImg(index)" >删除</button>
-                </li>
-            </ul>
-        </div>
-    </transition>
-</div>`
-
-    new Vue({
-        el: "#imgupload",
+    
+    Vue.component('img-uploader',{
         data() {
             return {
                 message: "上传文件:",
@@ -223,8 +166,66 @@
             } else {
                 localStorage.setItem("imgUrl", "[]");
             }
-        }
+        },
+        template:`<div id="imgupload">
+        <div class="openUpload imgupload-toggle" @click="open = !open">upload</div>
+        <div class="openHistory imgupload-toggle" @click="openHistory = !openHistory">history</div>
+        <transition name="warp">
+            <div class="imgupload-warp upload-layout" v-show="open">
+                <p>{{message}}</p>
+                <span>选择上传网站：</span>
+                <select  v-model="uploadApi" >
+                    <option value="niupic">niupic</option>
+                    <option value="catbox">Catbox</option>
+                    <option value="sm.ms">sm.ms</option>
+                </select>
+    
+                <div
+                    class = "drop-area"
+                    contenteditable="true"
+                    @dragenter.stop.prevent = " file = 'dragenter'"
+                    @dragover.stop.prevent
+                    @drop.stop.prevent = "dodrop($event)"
+                    @paste.stop.prevent = "pasteEvt($event)"
+                    >
+                    <p v-for="notice in notices">{{notice}}</p>
+    
+                </div>
+    
+                <input
+                    type="file"
+                    multiple="multiple"
+                    :files = "file"
+                    accept="image/gif, image/jpeg, image/jpg, image/png"
+                    @change="change($event)"
+                >
+                <input type="button" value="上传" @click="pushToUpload"/>
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="button" value="清空" @click="file = null"/>
+    
+    
+                <div class="url-box"  v-for="(imgurl,index) in url"  :key = "index">
+                    <input :value="imgurl | addWithTag" :id="'img-url-' + index" readonly>
+                    <input type="button" value="点击复制" @click="copyToClipboard('img-url-' + index)">
+                </div>
+    
+    
+    
+            </div>
+        </transition>
+        <transition name="warp">
+            <div class="imgupload-warp history-layout" v-if="openHistory">
+                <ul>
+                    <li v-for="(url,index) in urlList" :key="index" class = "img-history-list">
+                        <img :src="url | addHttp">
+                        <button @click="deleteThisImg(index)" >删除</button>
+                    </li>
+                </ul>
+            </div>
+        </transition>
+    </div>`
     })
+    new Vue({ el: "#imgupload" })
 
 
     const style = document.createElement("style");
