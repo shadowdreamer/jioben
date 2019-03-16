@@ -30,7 +30,6 @@
         },
         computed: {
             notices() {
-                let notice = [];
                 if (!this.file) {
                     return ['拖动或者粘贴文件到此处', '只能粘贴剪贴板图片(如qq截图)', '支持多个文件']
                 } else if (this.file == 'dragenter') {
@@ -48,11 +47,8 @@
                         size = size.toFixed(2);//保留的小数位数
                         return size + unitArr[index];
                     }
-                    Array.prototype.forEach.call(this.file, el => {
-                        notice.push(el.name + ',' + renderSize(el.size))
-                    })
+                    return Array.from(this.file, el => el.name + ',' + renderSize(el.size))
                 }
-                return notice
             }
         },
         methods: {
@@ -133,17 +129,21 @@
                 this.urlList.splice(index, 1);
                 localStorage.setItem("imgUrl", JSON.stringify(this.urlList));
             },
-
+            fileFilt(file){                
+                return Array.prototype.filter.call(file,el=>{
+                    return /image/.test(el.type)
+                })
+            },
             dodrop(ev) {
-                this.file = ev.dataTransfer.files
+                this.file = this.fileFilt(ev.dataTransfer.files)
                 this.url = []
             },
             pasteEvt(ev) {
-                this.file = ev.clipboardData.files
+                this.file = this.fileFilt(ev.clipboardData.files)
                 this.url = []
             },
             change(ev) {
-                this.file = ev.target.files;
+                this.file = this.fileFilt(ev.target.files)
                 this.url = []
             },
         },
@@ -167,7 +167,7 @@
                 localStorage.setItem("imgUrl", "[]");
             }
         },
-        template:`<div id="imgupload">
+        template:`<div>
         <div class="openUpload imgupload-toggle" @click="open = !open">upload</div>
         <div class="openHistory imgupload-toggle" @click="openHistory = !openHistory">history</div>
         <transition name="warp">
@@ -196,7 +196,7 @@
                     type="file"
                     multiple="multiple"
                     :files = "file"
-                    accept="image/gif, image/jpeg, image/jpg, image/png"
+                    accept="image/gif, image/jpeg, image/jpg, image/png, image/webp"
                     @change="change($event)"
                 >
                 <input type="button" value="上传" @click="pushToUpload"/>
