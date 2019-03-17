@@ -131,9 +131,7 @@
                 localStorage.setItem("imgUrl", JSON.stringify(this.urlList));
             },
             fileFilt(file){                
-                return Array.prototype.filter.call(file,el=>{
-                    return /image/.test(el.type)
-                })
+                return Array.prototype.filter.call(file,el=> /image/.test(el.type) )
             },
             dodrop(ev) {
                 this.file = this.fileFilt(ev.dataTransfer.files)
