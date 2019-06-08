@@ -1,11 +1,10 @@
 // ==UserScript==
 // @name         标记楼主和好友
-// @namespace    http://tampermonkey.net/
-// @version      0.1
+// @namespace    https://github.com/shadowdreamer/jioben/tree/master/bangumi
+// @version      0.3
 // @description  好友列表缓存在本地
-// @author       You
+// @author       cureDovahkiin
 // @include     /^https?:\/\/(bgm\.tv|bangumi\.tv|chii\.in)\/(ep|blog|subject\/topic|group\/topic)\//
-// @grant        none
 // ==/UserScript==
 
 (function () {
