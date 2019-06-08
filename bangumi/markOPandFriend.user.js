@@ -34,7 +34,7 @@
         })
     }).then(res => {
         const friends = res.friends;
-        const lz = $.find('.postTopic a.avatar')[0].href.split('/').pop()
+        const lz = $.find('.postTopic a.avatar')[0]?$.find('.postTopic a.avatar')[0].href.split('/').pop():''
         const all = $('a.l')
         console.log(lz)
         for (let i = 0; i < all.length; i++) {
