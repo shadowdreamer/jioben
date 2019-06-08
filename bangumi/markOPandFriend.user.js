@@ -4,7 +4,7 @@
 // @version      0.3
 // @description  好友列表缓存在本地
 // @author       cureDovahkiin
-// @include     /^https?:\/\/(bgm\.tv|bangumi\.tv|chii\.in)\/(ep|blog|subject\/topic|group\/topic)\//
+// @include      /^https?://(bgm\.tv|bangumi\.tv|chii\.in)\/.*
 // ==/UserScript==
 
 (function () {
