@@ -33,40 +33,40 @@
             }
         })
     }).then(res => {
-        const friends = res.friends;
         const lz = $.find('.postTopic a.avatar')[0]?$.find('.postTopic a.avatar')[0].href.split('/').pop():''
         const all = $('strong a.l')
         for (let i = 0; i < all.length; i++) {
             let id = all[i].href.split('/').pop()
-            if (friends[id]) {
-                $(all[i]).after($(`<span class="friends-chip">好友</span>`))
-            }
-            if (id == lz) {
-                $(all[i]).after($(`<span class="poster-chip">楼主</span>`))
-            }
+            let badge = `
+            <span class="dovahkiin-chips">
+            ${res.friends[id] ? '<span class="chip-warpper friends-chip">好友</span>' : ''}
+            ${id == lz ? '<span class="chip-warpper poster-chip">楼主</span>' : ''}
+            </span>
+            `
+            if (badge) $(all[i]).after($(badge))
         }
     });
     const style = document.createElement("style");
     const heads = document.getElementsByTagName("head");
     style.setAttribute("type", "text/css");
     style.innerHTML = `
-    span.friends-chip {
+    span.dovahkiin-chips{
+        transform: scale(0.8) translate(-4px, -4px);
+        display: inline-block;
+    }
+    span.chip-warpper{
+        display: inline-block;
         font-weight: normal;
+        padding: 0px 3px;
+        border-radius: 3px;
+    }
+    span.friends-chip {
         background-color: #369cf8;
         color: white;
-        display: inline-block;
-        padding: 0px 3px;
-        border-radius: 3px;
-        transform: scale(0.8) translate(1px, -4px);
     }
     span.poster-chip {
-        font-weight: normal;
         background-color: #f09199;
         color: white;
-        display: inline-block;
-        padding: 0px 3px;
-        border-radius: 3px;
-        transform: scale(0.8) translate(1px, -4px);
     }
     `
     heads[0].append(style)
