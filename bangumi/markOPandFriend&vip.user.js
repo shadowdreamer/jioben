@@ -12,7 +12,7 @@
         const now = new Date().getTime()
         const data = JSON.parse(localStorage.getItem('bgmFriends'))
         if (data) {
-            if ((now - data.stamp < 1800000) && data.friends && data.vip ) {
+            if ((now - data.stamp < 1800000) && data.friends && data.vip) {
                 resolve(data)
             }
         }
@@ -35,7 +35,7 @@
             })),
             new Promise(r => $.ajax({
                 url: 'https://raw.githubusercontent.com/shadowdreamer/jioben/master/bangumi/vipList.json',
-                dataType:'json',
+                dataType: 'json',
                 success(e) {
                     e.list.forEach(el => {
                         newData.vip[el] = true
@@ -43,56 +43,56 @@
                     r()
                 }
             }))
-        ]).then(()=>{
+        ]).then(() => {
             localStorage.setItem('bgmFriends', JSON.stringify(newData))
-            resolve(newData)})
+            resolve(newData)
+        })
     }).then(res => {
         console.log(res)
         const lz = $.find('.postTopic a.avatar')[0] ? $.find('.postTopic a.avatar')[0].href.split('/').pop() : ''
         const all = $('strong a.l')
         for (let i = 0; i < all.length; i++) {
             let id = all[i].href.split('/').pop()
-            if (res.vip[id]) {
-                $(all[i]).after($(`<span class="vip-chip">vip</span>`))
-            }
-            if (id == lz) {
-                $(all[i]).after($(`<span class="poster-chip">楼主</span>`))
-            }
-            if (res.friends[id]) {
-                $(all[i]).after($(`<span class="friends-chip">好友</span>`))
-            }
+            let badge = `
+            <span class="dovahkiin-chips">
+            ${res.friends[id] ? '<span class="chip-warpper friends-chip">好友</span>' : ''}
+            ${id == lz ? '<span class="chip-warpper poster-chip">楼主</span>' : ''}
+            ${res.vip[id] ? '<span class="chip-warpper vip-chip">VIP</span>' : ''}
+            ${id == 'sai' ? '<span class="chip-warpper master-chip">站长</span>' : ''}
+            </span>
+            `
+            if (badge) $(all[i]).after($(badge))
         }
     });
     const style = document.createElement("style");
     const heads = document.getElementsByTagName("head");
     style.setAttribute("type", "text/css");
     style.innerHTML = `
-    span.friends-chip {
+    span.dovahkiin-chips{
+        transform: scale(0.8) translate(-4px, -4px);
+        display: inline-block;
+    }
+    span.chip-warpper{
+        display: inline-block;
         font-weight: normal;
+        padding: 0px 3px;
+        border-radius: 3px;
+    }
+    span.friends-chip {
         background-color: #369cf8;
         color: white;
-        display: inline-block;
-        padding: 0px 3px;
-        border-radius: 3px;
-        transform: scale(0.8) translate(1px, -4px);
     }
     span.poster-chip {
-        font-weight: normal;
         background-color: #f09199;
         color: white;
-        display: inline-block;
-        padding: 0px 3px;
-        border-radius: 3px;
-        transform: scale(0.8) translate(1px, -4px);
     }
     span.vip-chip {
-        font-weight: normal;
         background-color: #fee228;
-        color: white;
-        display: inline-block;
-        padding: 0px 3px;
-        border-radius: 3px;
-        transform: scale(0.8) translate(1px, -4px);
+        color: #ff2b8f;
+    }
+    span.master-chip {
+        background-color: black;
+        color: #fee228;
     }
     `
     heads[0].append(style)
