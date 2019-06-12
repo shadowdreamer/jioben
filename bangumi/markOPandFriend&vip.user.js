@@ -49,7 +49,7 @@
     }).then(res => {
         console.log(res)
         const lz = $.find('.postTopic a.avatar')[0] ? $.find('.postTopic a.avatar')[0].href.split('/').pop() : ''
-        const all = $('a.l')
+        const all = $('strong a.l')
         for (let i = 0; i < all.length; i++) {
             let id = all[i].href.split('/').pop()
             if (res.vip[id]) {

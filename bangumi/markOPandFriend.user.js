@@ -35,7 +35,7 @@
     }).then(res => {
         const friends = res.friends;
         const lz = $.find('.postTopic a.avatar')[0]?$.find('.postTopic a.avatar')[0].href.split('/').pop():''
-        const all = $('a.l')
+        const all = $('strong a.l')
         for (let i = 0; i < all.length; i++) {
             let id = all[i].href.split('/').pop()
             if (friends[id]) {
