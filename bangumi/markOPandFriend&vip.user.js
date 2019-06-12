@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         标记楼主和好友还有vip
 // @namespace    https://github.com/shadowdreamer/jioben/tree/master/bangumi
-// @version      0.3
+// @version      0.4
 // @description  好友列表缓存在本地
 // @author       cureDovahkiin
 // @include      /^https?://(bgm\.tv|bangumi\.tv|chii\.in)\/.*
