@@ -48,7 +48,6 @@
             resolve(newData)
         })
     }).then(res => {
-        console.log(res)
         const lz = $.find('.postTopic a.avatar')[0] ? $.find('.postTopic a.avatar')[0].href.split('/').pop() : ''
         const all = $('strong a.l')
         for (let i = 0; i < all.length; i++) {
