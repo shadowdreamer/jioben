@@ -4,7 +4,8 @@
 // @version      0.1
 // @description  *
 // @author       cureDovahkiin
-// @include      /^https?://(bgm\.tv|bangumi\.tv|chii\.in)\/.*
+// @include      /^https?://(bgm\.tv|bangumi\.tv|chii\.in)\/subject\/.*
+// @include      /^https?://(bgm\.tv|bangumi\.tv|chii\.in)\/anime\/.*
 // ==/UserScript==
 (function() {
     'use strict';
