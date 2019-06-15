@@ -16,7 +16,7 @@
             dom.innerHTML = dom.innerHTML.replace(/\(bgm[0-9]*\)/g, s => `<img src="${smiles[s]}" alt="${s}">`)
         }
     }
-    $('.text,.status').each(function () {
+    $('.text,.status,.even.reply_item').each(function () {
         henshin(this)
     })
     $(document).ajaxComplete(function (ev, xhr, setting) {
