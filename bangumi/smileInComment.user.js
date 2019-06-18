@@ -23,7 +23,15 @@
         if (/\(bgm[0-9]*\)/.test(xhr.responseText) && /timeline/.test(setting.url)) {
             setTimeout(() => {
                 $('.status,.even.reply_item').each(function () {
-                    henshin(this)
+                    if (/\(bgm[0-9]*\)/.test(this.innerText)) {
+                        henshin(this)
+                        const _this = this
+                        $(this).find('.cmt_reply').each(function(){
+                            $(this).click(()=>{
+                                $(_this).parent().find('.odd form textarea')[0].value += this.innerHTML
+                            })
+                        })
+                    }
                 })
             }, 39);
         }
