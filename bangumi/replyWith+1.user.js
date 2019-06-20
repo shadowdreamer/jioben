@@ -66,7 +66,7 @@
         background-color: #bbb;
         color: #fff;
     }
-    .reply-plus-loading:{
+    .reply-plus-loading {
         display: inline-block;
         margin: 0 6px;
         height: 12px;
