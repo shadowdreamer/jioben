@@ -14,6 +14,7 @@
         if (data) {
             if (now - data.stamp < 1800000) {
                 resolve(data)
+                return
             }
         }
         const newData = {
