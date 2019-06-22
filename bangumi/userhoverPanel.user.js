@@ -111,6 +111,7 @@
         div.dataready {
             padding: 8px;
             font-weight: normal;
+            text-align: left;
         }
         div.dataready img {
             height: 75px;
