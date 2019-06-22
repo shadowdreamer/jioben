@@ -33,8 +33,10 @@
                         $(e).find('#anime [href^="/anime/list"]').each(function () {
                             userData.watch.push(this.innerHTML)
                         })
+                        userData.sinkuro = $(e).find('small.hot').html()
+                        userData.sinkuroritsu = $(e).find('span.percent_text').html()
                         r()
-                        
+
                     }
                 })),
                 new Promise(r => $.ajax({
@@ -42,7 +44,7 @@
                     dataType: 'json',
                     success: e => {
                         userData.name = e.nickname
-                        userData.avatar = e.avatar.large
+                        userData.avatar = e.avatar.large.replace(/https?/, 'https')
                         userData.sign = e.sign
                         userData.url = e.url
                         userData.message = `https://bgm.tv/pm/compose/${e.id}.chii`
@@ -57,14 +59,23 @@
                     <p class='user-joindate'>${userData.joinDate}</p>
                     <p class='user-sign'>${userData.sign}</p>
                 </div>
+                ${
+                    userData.sinkuro ? `
+                    <div class="shinkuro">
+                    <span>${userData.sinkuro.substr(2)}</span>                 
+                    <div style="width:${userData.sinkuroritsu}" class="shinkuroritsu"></div>
+                    <span>同步率：${userData.sinkuroritsu}</span>                   
+                    </div>
+                    `: ''
+                    }                
                 <div class='user-watch'>
-                  ${(function(){
-                      let tmp=''
-                      userData.watch.splice(1).forEach(el=>{
-                        tmp += `<span>${el}</span>`
-                      })
-                      return tmp
-                  })()}
+                  ${(function () {
+                        let tmp = ''
+                        userData.watch.splice(1).forEach(el => {
+                            tmp += `<span>${el}</span>`
+                        })
+                        return tmp
+                    })()}
                 </div>
                 <a class = 'send-message' href="${userData.message}" target="_blank">发送短信</a>
                 `
@@ -139,16 +150,39 @@
             word-break: break-all;
         }
         .user-watch {
-            border-top: 1px solid #f09199;
             padding: 10px 0px 5px;
             margin-bottom: 10px;
         }
         .user-watch span {
             display: inline-block;
-            margin: 0px 3px;
+            margin-right: 3px;
             padding-right: 7px;
             border-left: 4px solid #f09199;
             background-color: #fce9e9;
+        }
+        .user-watch span:last-of-type {
+            margin-right: 0;
+        }
+        .shinkuro {
+            width: 100%;
+            height: 20px;
+            background-color: #fce9e9;
+            line-height: 20px;
+        }
+        .shinkuroritsu {
+            height: 20px;
+            float: left;
+            background-color: #ee7e7e;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+        .shinkuro span:nth-of-type(1) {
+            position: absolute;
+            margin-left: 10px;
+        }
+        .shinkuro span:nth-of-type(2) {
+            float: right;
+            margin-right: 10px;
         }
         a.send-message {
             display: inline-block;
