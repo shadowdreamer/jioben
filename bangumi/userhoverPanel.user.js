@@ -19,7 +19,7 @@
             setTimeout(() => {
                 $(layout).addClass('showit')
             }, 1);
-            layout.innerHTML = 'loading'
+            layout.innerHTML = `<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>`
             //...
             const userData = {
                 watch: []
@@ -33,8 +33,8 @@
                         $(e).find('#anime [href^="/anime/list"]').each(function () {
                             userData.watch.push(this.innerHTML)
                         })
-                        userData.isfriend = $(e).find('#friend_flag .fade').length
                         r()
+                        
                     }
                 })),
                 new Promise(r => $.ajax({
@@ -58,10 +58,13 @@
                     <p class='user-sign'>${userData.sign}</p>
                 </div>
                 <div class='user-watch'>
-                  <span>${userData.watch[1]}</span>
-                  <span>${userData.watch[2]}</span>
-                  <span>${userData.watch[3]}</span>
-                  <span>${userData.watch[4]}</span>
+                  ${(function(){
+                      let tmp=''
+                      userData.watch.splice(1).forEach(el=>{
+                        tmp += `<span>${el}</span>`
+                      })
+                      return tmp
+                  })()}
                 </div>
                 <a class = 'send-message' href="${userData.message}" target="_blank">发送短信</a>
                 `
@@ -94,60 +97,158 @@
     style.innerHTML = `
         .user-hover {
             position: absolute;
-            height: 30px;
-            width: 100px;
             background: white;
             box-shadow: 0px 0px 4px 1px #ddd;
             transition: all .2s ease-in;
             transform: translate(0,6px);
-            opacity: 0.3;
+            opacity: 0.3 !important;
             z-index:999
         }
         div.showit{
-            opacity: 1;
-            transform: translate(0,3);
+            opacity: 1 !important;
+            transform: translate(0,3px);
         }
         div.dataready {
-            height: 150px;
-            width: 330px;
             padding: 8px;
             font-weight: normal;
         }
         div.dataready img {
             height: 75px;
+            border-radius: 5px;
         }
         .user-info {
             display: inline-block;
-            width: 210px;
-            margin: 0 10px 0 10px;
+            vertical-align: top;
+            width: 220px;
+            margin: 0 0 10px 10px;
         }
         .user-info .user-name {
             font-size: 20px;
             font-weight: bold;
         }
         .user-info .user-joindate {
-            background-color: #f6d9d9;
+            background-color: #f09199;
             display: inline-block;
             color: white;
             border-radius: 10px;
             padding: 0 10px;
-            margin: 5px;
+            margin: 8px 0 3px;
         }
         .user-info .user-sign {
             word-break: break-all;
         }
         .user-watch {
-            border-top: 1px solid #f6d5d5;
+            border-top: 1px solid #f09199;
             padding: 10px 0px 5px;
+            margin-bottom: 10px;
+        }
+        .user-watch span {
+            display: inline-block;
+            margin: 0px 3px;
+            padding-right: 7px;
+            border-left: 4px solid #f09199;
+            background-color: #fce9e9;
         }
         a.send-message {
             display: inline-block;
             float: right;
-            margin: 0 10px;
+            margin-bottom: 8px;
             background: #f09199;
             color: white;
             padding: 2px 8px;
             border-radius: 3px;
+        }
+        a.send-message:hover{
+            background: #b4696f;
+        }
+        .lds-roller {
+            display: inline-block;
+            position: relative;
+            width: 64px;
+            height: 64px;
+            margin:10px 20px
+          }
+          .lds-roller div {
+            animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            transform-origin: 32px 32px;
+          }
+          .lds-roller div:after {
+            content: " ";
+            display: block;
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #f09199;
+            margin: -3px 0 0 -3px;
+          }
+          .lds-roller div:nth-child(1) {
+            animation-delay: -0.036s;
+          }
+          .lds-roller div:nth-child(1):after {
+            top: 50px;
+            left: 50px;
+          }
+          .lds-roller div:nth-child(2) {
+            animation-delay: -0.072s;
+          }
+          .lds-roller div:nth-child(2):after {
+            top: 54px;
+            left: 45px;
+          }
+          .lds-roller div:nth-child(3) {
+            animation-delay: -0.108s;
+          }
+          .lds-roller div:nth-child(3):after {
+            top: 57px;
+            left: 39px;
+          }
+          .lds-roller div:nth-child(4) {
+            animation-delay: -0.144s;
+          }
+          .lds-roller div:nth-child(4):after {
+            top: 58px;
+            left: 32px;
+          }
+          .lds-roller div:nth-child(5) {
+            animation-delay: -0.18s;
+          }
+          .lds-roller div:nth-child(5):after {
+            top: 57px;
+            left: 25px;
+          }
+          .lds-roller div:nth-child(6) {
+            animation-delay: -0.216s;
+          }
+          .lds-roller div:nth-child(6):after {
+            top: 54px;
+            left: 19px;
+          }
+          .lds-roller div:nth-child(7) {
+            animation-delay: -0.252s;
+          }
+          .lds-roller div:nth-child(7):after {
+            top: 50px;
+            left: 14px;
+          }
+          .lds-roller div:nth-child(8) {
+            animation-delay: -0.288s;
+          }
+          .lds-roller div:nth-child(8):after {
+            top: 45px;
+            left: 10px;
+          }
+          @keyframes lds-roller {
+            0% {
+              transform: rotate(0deg);
+            }
+            100% {
+              transform: rotate(360deg);
+            }
+          }
+          
+        #comment_list div.sub_reply_collapse {
+            opacity: 1;
         }
     `
     heads[0].append(style)
