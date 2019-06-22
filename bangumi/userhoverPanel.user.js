@@ -38,7 +38,7 @@
                     }
                 })),
                 new Promise(r => $.ajax({
-                    url: 'https://api.bgm.tv' + this.href.substr(14),
+                    url: 'https://api.bgm.tv/user/' + this.temp1.href.split('/').pop(),
                     dataType: 'json',
                     success: e => {
                         userData.name = e.nickname
