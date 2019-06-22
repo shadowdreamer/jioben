@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         用户信息悬浮框
+// @name         bangumi鼠标移入显示用户信息悬浮框
 // @namespace    https://github.com/shadowdreamer/jioben/tree/master/bangumi
 // @version      0.3
 // @description   
