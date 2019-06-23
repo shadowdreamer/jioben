@@ -25,44 +25,51 @@
             const userData = {
                 href: this.href,
                 id: this.href.split('/').pop(),
-                self: $('.idBadgerNeue a.avatar').attr('href')?$('.idBadgerNeue a.avatar').attr('href').split('/').pop():'',
+                self: $('.idBadgerNeue a.avatar').attr('href') ? $('.idBadgerNeue a.avatar').attr('href').split('/').pop() : '',
                 watch: []
             }
-            if(this.onclick){
+            if (this.onclick) {
                 userData.id = this.onclick.toString().split("'")[1]
-                userData.href = '/user/'+userData.id
-            }else{
+                userData.href = '/user/' + userData.id
+            } else {
                 userData.id = this.href.split('/').pop()
                 userData.href = this.href
             }
+            const req = {
+                req1: null,
+                req2: null
+            }
             Promise.all([
-                new Promise(r => $.ajax({
-                    url: userData.href,
-                    dataType: 'text',
-                    success: e => {
-                        userData.joinDate = $(e).find('.network_service .tip:eq(0)').text()
-                        $(e).find('#anime [href^="/anime/list"]').each(function () {
-                            userData.watch.push(this.innerHTML)
-                        })
-                        userData.sinkuro = $(e).find('small.hot').html()
-                        userData.sinkuroritsu = $(e).find('span.percent_text').html()
-                        userData.addFriend = $(e).find('#connectFrd').attr('href')
-                        r()
-
-                    }
-                })),
-                new Promise(r => $.ajax({
-                    url: 'https://api.bgm.tv/user/' + userData.id,
-                    dataType: 'json',
-                    success: e => {
-                        userData.name = e.nickname
-                        userData.avatar = e.avatar.large.replace(/https?/, 'https')
-                        userData.sign = e.sign
-                        userData.url = e.url
-                        userData.message = `https://bgm.tv/pm/compose/${e.id}.chii`
-                        r()
-                    }
-                }))
+                new Promise(r => {
+                    req.req1 = $.ajax({
+                        url: userData.href,
+                        dataType: 'text',
+                        success: e => {
+                            userData.joinDate = $(e).find('.network_service .tip:eq(0)').text()
+                            $(e).find('#anime [href^="/anime/list"]').each(function () {
+                                userData.watch.push(this.innerHTML)
+                            })
+                            userData.sinkuro = $(e).find('small.hot').html()
+                            userData.sinkuroritsu = $(e).find('span.percent_text').html()
+                            userData.addFriend = $(e).find('#connectFrd').attr('href')
+                            r()
+                        }
+                    })
+                }),
+                new Promise(r => {
+                    req.req2 = $.ajax({
+                        url: 'https://api.bgm.tv/user/' + userData.id,
+                        dataType: 'json',
+                        success: e => {
+                            userData.name = e.nickname
+                            userData.avatar = e.avatar.large.replace(/https?/, 'https')
+                            userData.sign = e.sign
+                            userData.url = e.url
+                            userData.message = `https://bgm.tv/pm/compose/${e.id}.chii`
+                            r()
+                        }
+                    })
+                })
             ]).then(() => {
                 layout.innerHTML = `
                 <img class='avater' src="${userData.avatar}"/>
@@ -136,6 +143,8 @@
                 setTimeout(() => {
                     $(layout).remove()
                     locker = false
+                    req.req1.abort()
+                    req.req2.abort()
                 }, 300);
             }
             $(this).after(layout).mouseout(function () {
