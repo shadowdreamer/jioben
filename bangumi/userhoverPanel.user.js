@@ -12,7 +12,7 @@
     $('[href^="/user"].l,[href^="/user"].avatar,#pm_sidebar a[onclick^="AddMSG"]').each(function () {
         $(this).mouseover(function () {
             if (locker) return false
-            if (this.text == "查看好友列表") return false
+            if (this.text == "查看好友列表" || $(this).find('.avatarSize75').length > 0) return false
             locker = true
             const layout = document.createElement('div')
             let timer = null
