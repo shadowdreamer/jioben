@@ -168,6 +168,7 @@
         }
         div.dataready img {
             height: 75px;
+            width:75px;
             border-radius: 5px;
         }
         .user-info {
