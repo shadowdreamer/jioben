@@ -39,7 +39,7 @@
                 req2: null
             }
             Promise.all([
-                new Promise(r => {
+                new Promise((r,j) => {
                     req.req1 = $.ajax({
                         url: userData.href,
                         dataType: 'text',
@@ -54,10 +54,13 @@
                             userData.self= $(e).find('.idBadgerNeue a.avatar').attr('href').split('/').pop()
                             userData.lastEvent = $(e).find('.timeline small.time:eq(0)').text()
                             r()
+                        },
+                        error:()=>{
+                            j()
                         }
                     })
                 }),
-                new Promise(r => {
+                new Promise((r,j) => {
                     req.req2 = $.ajax({
                         url: 'https://api.bgm.tv/user/' + userData.id,
                         dataType: 'json',
@@ -68,6 +71,9 @@
                             userData.url = e.url
                             userData.message = `https://bgm.tv/pm/compose/${e.id}.chii`
                             r()
+                        },
+                        error:()=>{
+                            j()
                         }
                     })
                 })
@@ -138,7 +144,10 @@
                     return false
                 })
             }).catch(() => {
-                layout.innerHTML = "请求失败，稍后再试"
+                layout.innerHTML = `
+                <p style='font-size:16px; margin:25px 30px'>
+                <img style="height:15px;width:16px" src='/img/smiles/tv/15.gif'/><br/>
+                请求失败，请稍后再试。<br/><br/>或者使用<a href='https://bgm.tv'>bgm.tv</a>域名，</p>`
                 $(layout).addClass('dataready')
             })
             function removeLayout () {
