@@ -9,7 +9,7 @@
 
 (function () {
     let locker = false
-    $('[href^="/user"].l,[href^="/user"].avatar').each(function () {
+    $('[href^="/user"].l,[href^="/user"].avatar,#pm_sidebar a[onclick^="AddMSG"]').each(function () {
         $(this).mouseover(function () {
             if (locker) return false
             if (this.text == "查看好友列表") return false
@@ -25,12 +25,19 @@
             const userData = {
                 href: this.href,
                 id: this.href.split('/').pop(),
-                self: $('.idBadgerNeue a.avatar').attr('href').split('/').pop(),
+                self: $('.idBadgerNeue a.avatar').attr('href')?$('.idBadgerNeue a.avatar').attr('href').split('/').pop():'',
                 watch: []
+            }
+            if(this.onclick){
+                userData.id = this.onclick.toString().split("'")[1]
+                userData.href = '/user/'+userData.id
+            }else{
+                userData.id = this.href.split('/').pop()
+                userData.href = this.href
             }
             Promise.all([
                 new Promise(r => $.ajax({
-                    url: this.href,
+                    url: userData.href,
                     dataType: 'text',
                     success: e => {
                         userData.joinDate = $(e).find('.network_service .tip:eq(0)').text()
@@ -60,7 +67,7 @@
                 layout.innerHTML = `
                 <img class='avater' src="${userData.avatar}"/>
                 <div class='user-info'>
-                    <p class='user-name'>${userData.name} </p>
+                    <p class='user-name'><a href="${userData.href}" target="_blank">${userData.name} </a></p>
                     <p class='user-joindate'>${userData.joinDate}</p>
                     <p class='user-sign'>${userData.sign}</p>
                 </div>
@@ -69,7 +76,7 @@
                     <div class="shinkuro">
                     <div style="width:${userData.sinkuroritsu}" class="shinkuroritsu"></div>
                     <div class="shinkuro-text">
-                        <span>${userData.sinkuro.substr(2)}</span> 
+                        <span>${userData.sinkuro.substring(2)}</span> 
                         <span>同步率：${userData.sinkuroritsu}</span> 
                     </div>                                      
                     </div>
