@@ -9,19 +9,23 @@
 
 (function () {
     let locker = false
-    $('[href^="/user"].l').each(function () {
+    $('[href^="/user"].l,[href^="/user"].avatar').each(function () {
         $(this).mouseover(function () {
             if (locker) return false
+            if (this.text == "查看好友列表") return false
             locker = true
             const layout = document.createElement('div')
             let timer = null
             $(layout).addClass('user-hover')
-            setTimeout(() => {
-                $(layout).addClass('showit')
-            }, 1);
+            if ($(this).hasClass('avatar')) {
+                $(layout).addClass('fix-avatar-hover')
+            }
             layout.innerHTML = `<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>`
             //...
             const userData = {
+                href: this.href,
+                id: this.href.split('/').pop(),
+                self: $('.idBadgerNeue a.avatar').attr('href').split('/').pop(),
                 watch: []
             }
             Promise.all([
@@ -35,12 +39,13 @@
                         })
                         userData.sinkuro = $(e).find('small.hot').html()
                         userData.sinkuroritsu = $(e).find('span.percent_text').html()
+                        userData.addFriend = $(e).find('#connectFrd').attr('href')
                         r()
 
                     }
                 })),
                 new Promise(r => $.ajax({
-                    url: 'https://api.bgm.tv/user/' + this.href.split('/').pop(),
+                    url: 'https://api.bgm.tv/user/' + userData.id,
                     dataType: 'json',
                     success: e => {
                         userData.name = e.nickname
@@ -77,8 +82,45 @@
                         return tmp
                     })()}
                 </div>
-                <a class = 'send-message' href="${userData.message}" target="_blank">发送短信</a>
+                <a class = 'hover-panel-btn' href="${userData.message}" target="_blank">发送短信</a>
+                <span id="panel-friend">
+                ${ userData.addFriend ? `
+                        <a class='hover-panel-btn' href="${userData.addFriend}" id='PanelconnectFrd' href="javascript:void(0)">添加好友</a>                    
+                    `: `
+                ${ userData.id == userData.self ? '' : `<span class = 'my-friend' >我的好友</span>`}
+                    `}
+                </span>
                 `
+
+                $(layout).addClass('dataready')
+                $('#PanelconnectFrd').click(function () {
+                    $('#panel-friend').html(`<span class='my-friend'>正在添加...</span>`)
+                    $("#robot").fadeIn(500);
+                    $("#robot_balloon").html(AJAXtip['wait'] + AJAXtip['addingFrd'])
+                    $.ajax({
+                        type: "GET",
+                        url: this + '&ajax=1',
+                        success: function (html) {
+                            $('#PanelconnectFrd').hide()
+                            $('#panel-friend').html(`<span class = 'my-friend' >我的好友</span>`)
+                            $("#robot_balloon").html(AJAXtip['addFrd'])
+                            $("#robot").animate({
+                                opacity: 1
+                            }, 1000).fadeOut(500)
+                            localStorage.removeItem('bgmFriends')
+                        },
+                        error: function (html) {
+                            $("#robot_balloon").html(AJAXtip['error'])
+                            $("#robot").animate({
+                                opacity: 1
+                            }, 1000).fadeOut(500)
+                            $('#panel-friend').html(`<span class='my-friend-fail'>添加失败,稍后再试</span>`)
+                        }
+                    })
+                    return false
+                })
+            }).catch(() => {
+                layout.innerHTML = "请求失败，稍后再试"
                 $(layout).addClass('dataready')
             })
             function removeLayout () {
@@ -112,12 +154,10 @@
             box-shadow: 0px 0px 4px 1px #ddd;
             transition: all .2s ease-in;
             transform: translate(0,6px);
-            opacity: 0.3 !important;
             z-index:999
         }
-        div.showit{
-            opacity: 1 !important;
-            transform: translate(0,3px);
+        .fix-avatar-hover{
+            translate(45px,20px)
         }
         div.dataready {
             padding: 8px;
@@ -156,7 +196,7 @@
         .user-watch span {
             display: inline-block;
             margin-right: 3px;
-            padding-right: 7px;
+            padding: 0px 4px;
             border-left: 4px solid #f09199;
             background-color: #fce9e9;
         }
@@ -182,9 +222,10 @@
         }
         .shinkuro span:nth-of-type(2) {
             float: right;
+            position: absolute;
             margin-right: 10px;
         }
-        a.send-message {
+        a.hover-panel-btn {
             display: inline-block;
             float: right;
             margin-bottom: 8px;
@@ -192,10 +233,30 @@
             color: white;
             padding: 2px 8px;
             border-radius: 3px;
+            margin-left:10px;
         }
-        a.send-message:hover{
+        a.hover-panel-btn:hover{
             background: #b4696f;
         }
+        span.my-friend{
+            display: inline-block;
+            float: right;
+            margin-bottom: 8px;
+            background: #6eb76e;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+        span.my-friend-fail{
+            display: inline-block;
+            float: right;
+            margin-bottom: 8px;
+            background: red;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+
         .lds-roller {
             display: inline-block;
             position: relative;
