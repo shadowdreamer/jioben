@@ -52,6 +52,7 @@
                             userData.sinkuroritsu = $(e).find('span.percent_text').html()
                             userData.addFriend = $(e).find('#connectFrd').attr('href')
                             userData.self= $(e).find('.idBadgerNeue a.avatar').attr('href').split('/').pop()
+                            userData.lastEvent = $(e).find('.timeline small.time:eq(0)').text()
                             r()
                         }
                     })
@@ -98,6 +99,7 @@
                         return tmp
                     })()}
                 </div>
+                <span class='user-lastevent'>Last@${userData.lastEvent}</span>
                 <a class = 'hover-panel-btn' href="${userData.message}" target="_blank">发送短信</a>
                 <span id="panel-friend">
                 ${ userData.addFriend ? `
@@ -172,15 +174,21 @@
             box-shadow: 0px 0px 4px 1px #ddd;
             transition: all .2s ease-in;
             transform: translate(0,6px);
-            z-index:999
+            font-size: 12px;
+            z-index:999;
+            color:#010101
         }
         .fix-avatar-hover{
             transform: translate(45px,20px)
         }
+        
         div.dataready {
             padding: 8px;
             font-weight: normal;
             text-align: left;
+        }
+        span.user-lastevent {
+            color: #f67070;
         }
         div.dataready img {
             height: 75px;
