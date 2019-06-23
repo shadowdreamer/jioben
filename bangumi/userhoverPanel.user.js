@@ -67,9 +67,11 @@
                 ${
                     userData.sinkuro ? `
                     <div class="shinkuro">
-                    <span>${userData.sinkuro.substr(2)}</span>                 
                     <div style="width:${userData.sinkuroritsu}" class="shinkuroritsu"></div>
-                    <span>同步率：${userData.sinkuroritsu}</span>                   
+                    <div class="shinkuro-text">
+                        <span>${userData.sinkuro.substr(2)}</span> 
+                        <span>同步率：${userData.sinkuroritsu}</span> 
+                    </div>                                      
                     </div>
                     `: ''
                     }                
@@ -157,7 +159,7 @@
             z-index:999
         }
         .fix-avatar-hover{
-            translate(45px,20px)
+            transform: translate(45px,20px)
         }
         div.dataready {
             padding: 8px;
@@ -209,21 +211,23 @@
             background-color: #fce9e9;
             line-height: 20px;
         }
+        .shinkuro-text {
+            position: absolute;
+            width: 100%;
+        }
         .shinkuroritsu {
             height: 20px;
             float: left;
-            background-color: #ee7e7e;
             border-top-right-radius: 10px;
             border-bottom-right-radius: 10px;
+            background: linear-gradient(to right, #f9a9a9 0%,#fb788f 100%);
         }
-        .shinkuro span:nth-of-type(1) {
-            position: absolute;
+        .shinkuro-text span:nth-of-type(1) {
             margin-left: 10px;
         }
-        .shinkuro span:nth-of-type(2) {
+        .shinkuro-text span:nth-of-type(2) {
             float: right;
-            position: absolute;
-            margin-right: 10px;
+            margin-right: 26px;
         }
         a.hover-panel-btn {
             display: inline-block;
@@ -234,6 +238,7 @@
             padding: 2px 8px;
             border-radius: 3px;
             margin-left:10px;
+            transition: all .2s ease-in;
         }
         a.hover-panel-btn:hover{
             background: #b4696f;
