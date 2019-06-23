@@ -25,7 +25,6 @@
             const userData = {
                 href: this.href,
                 id: this.href.split('/').pop(),
-                self: $('.idBadgerNeue a.avatar').attr('href') ? $('.idBadgerNeue a.avatar').attr('href').split('/').pop() : '',
                 watch: []
             }
             if (this.onclick) {
@@ -52,6 +51,7 @@
                             userData.sinkuro = $(e).find('small.hot').html()
                             userData.sinkuroritsu = $(e).find('span.percent_text').html()
                             userData.addFriend = $(e).find('#connectFrd').attr('href')
+                            userData.self= $(e).find('.idBadgerNeue a.avatar').attr('href').split('/').pop()
                             r()
                         }
                     })
