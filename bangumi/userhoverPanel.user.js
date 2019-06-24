@@ -42,14 +42,17 @@
                         url: userData.href,
                         dataType: 'text',
                         success: e => {
+                            userData.self = /<a class="avatar" href="([^"]*)">/.exec(e)[1].split('/').pop()
+                            console.log(userData)
+                            if(userData.self != userData.id){
+                                userData.sinkuro = /mall class="hot">\/([^<]*)<\/small>/.exec(e)[1]
+                                userData.sinkuroritsu = /<span class="percent" style="width:([^"]*)">/.exec(e)[1]
+                                userData.addFriend = /<a href="([^"']*)" id="connectFrd" class="chiiBtn">/.exec(e)
+                                userData.addFriend = userData.addFriend ? userData.addFriend[1] : false
+                            }
                             userData.joinDate = /Bangumi<\/span> <span class="tip">([^<]*)<\/span>/.exec(e)[1]
-                            userData.sinkuro = /mall class="hot">\/([^<]*)<\/small>/.exec(e)[1]
-                            userData.sinkuroritsu = /<span class="percent" style="width:([^"]*)">/.exec(e)[1]
-                            userData.addFriend = /<a href="([^"']*)" id="connectFrd" class="chiiBtn">/.exec(e)
-                            userData.addFriend = userData.addFriend ? userData.addFriend[1] : false
                             userData.lastEvent = /<small class="time">([^<]*)<\/small><\/li><li>/.exec(e)[1]
                             userData.watch = Array.from(e.match(/<a href="\/anime\/list[^>=]*>([0-9]{1,5}[^<]*)/g) || [], el => />([0-9]{1,5}.*)/.exec(el)[1])
-                            userData.self = /<a class="avatar" href="([^"]*)">/.exec(e)[1]
                             r()
                         },
                         error: () => {
