@@ -25,42 +25,39 @@
             const userData = {
                 href: this.href,
                 id: this.href.split('/').pop(),
-                watch: []
             }
             if (this.onclick) {
                 userData.id = this.onclick.toString().split("'")[1]
-                userData.href = '/user/' + userData.id
             } else {
                 userData.id = this.href.split('/').pop()
-                userData.href = this.href
             }
+            userData.href = '/user/' + userData.id
             const req = {
                 req1: null,
                 req2: null
             }
             Promise.all([
-                new Promise((r,j) => {
+                new Promise((r, j) => {
                     req.req1 = $.ajax({
                         url: userData.href,
                         dataType: 'text',
                         success: e => {
-                            userData.joinDate = $(e).find('.network_service .tip:eq(0)').text()
-                            $(e).find('#anime [href^="/anime/list"]').each(function () {
-                                userData.watch.push(this.innerHTML)
-                            })
-                            userData.sinkuro = $(e).find('small.hot').html()
-                            userData.sinkuroritsu = $(e).find('span.percent_text').html()
-                            userData.addFriend = $(e).find('#connectFrd').attr('href')
-                            userData.self= $(e).find('.idBadgerNeue a.avatar').attr('href').split('/').pop()
-                            userData.lastEvent = $(e).find('.timeline small.time:eq(0)').text()
+                            userData.joinDate = /Bangumi<\/span> <span class="tip">([^<]*)<\/span>/.exec(e)[1]
+                            userData.sinkuro = /mall class="hot">\/([^<]*)<\/small>/.exec(e)[1]
+                            userData.sinkuroritsu = /<span class="percent" style="width:([^"]*)">/.exec(e)[1]
+                            userData.addFriend = /<a href="([^"']*)" id="connectFrd" class="chiiBtn">/.exec(e)
+                            userData.addFriend = userData.addFriend ? userData.addFriend[1] : false
+                            userData.lastEvent = /<small class="time">([^<]*)<\/small><\/li><li>/.exec(e)[1]
+                            userData.watch = Array.from(e.match(/<a href="\/anime\/list[^>=]*>([0-9]{1,5}[^<]*)/g) || [], el => />([0-9]{1,5}.*)/.exec(el)[1])
+                            userData.self = /<a class="avatar" href="([^"]*)">/.exec(e)[1]
                             r()
                         },
-                        error:()=>{
+                        error: () => {
                             j()
                         }
                     })
                 }),
-                new Promise((r,j) => {
+                new Promise((r, j) => {
                     req.req2 = $.ajax({
                         url: 'https://api.bgm.tv/user/' + userData.id,
                         dataType: 'json',
@@ -72,7 +69,7 @@
                             userData.message = `https://bgm.tv/pm/compose/${e.id}.chii`
                             r()
                         },
-                        error:()=>{
+                        error: () => {
                             j()
                         }
                     })
@@ -90,7 +87,7 @@
                     <div class="shinkuro">
                     <div style="width:${userData.sinkuroritsu}" class="shinkuroritsu"></div>
                     <div class="shinkuro-text">
-                        <span>${userData.sinkuro.substring(2)}</span> 
+                        <span>${userData.sinkuro}</span> 
                         <span>同步率：${userData.sinkuroritsu}</span> 
                     </div>                                      
                     </div>
@@ -99,7 +96,7 @@
                 <div class='user-watch'>
                   ${(function () {
                         let tmp = ''
-                        userData.watch.splice(1).forEach(el => {
+                        userData.watch.forEach(el => {
                             tmp += `<span>${el}</span>`
                         })
                         return tmp
