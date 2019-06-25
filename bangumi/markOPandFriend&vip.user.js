@@ -28,9 +28,11 @@
                 method: 'GET',
                 dataType: 'text',
                 success: function (res) {
-                    $(res).find("#memberUserList li").each(function () {
-                        newData.friends[$(this).find('strong a').attr('href').split('/').pop()] = true
-                    })
+                    let filter =  /<a href="\/user\/([^"]*)" class="avatar">\n<span class="userImage">/g
+                    let anchor
+                    while(( anchor = filter.exec(res)) !== null){
+                        newData.friends[anchor[1]] = true
+                    }
                     r()
                 }
             })),
