@@ -4,7 +4,7 @@
 // @version      0.3
 // @description  好友列表缓存在本地
 // @author       cureDovahkiin
-// @include      /^https?://(bgm\.tv|bangumi\.tv|chii\.in)\/.*
+// @include      /^https?://(bgm\.tv|bangumi\.tv|chii\.in)\/.*  
 // ==/UserScript==
 
 (function () {
@@ -26,9 +26,11 @@
             method: 'GET',
             dataType: 'text',
             success: function (res) {
-                $(res).find("#memberUserList li").each(function () {
-                    newData.friends[$(this).find('strong a').attr('href').split('/').pop()] = true
-                })
+                let filter =  /<a href="\/user\/([^"]*)" class="avatar">\n<span class="userImage">/g
+                let anchor
+                while(( anchor = filter.exec(res)) !== null){
+                    newData.friends[anchor[1]] = true
+                }
                 localStorage.setItem('bgmFriends', JSON.stringify(newData))
                 resolve(newData)
             }
