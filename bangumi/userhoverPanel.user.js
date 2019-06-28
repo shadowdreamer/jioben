@@ -29,7 +29,9 @@
             if (this.onclick) {
                 userData.id = this.onclick.toString().split("'")[1]
             } else {
-                userData.id = this.href.split('/').pop()
+                let urlSplit = /\/user\/([^\/]*)\/?(.*)/.exec(this.href)
+                if(urlSplit[2])return
+                userData.id = urlSplit[1]
             }
             userData.href = '/user/' + userData.id
             const req = {
