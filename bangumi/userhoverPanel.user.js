@@ -29,7 +29,7 @@
             if (this.onclick) {
                 userData.id = this.onclick.toString().split("'")[1]
             } else {
-                let urlSplit = /\/user\/([^\/]*)\/?(.*)/.exec(this.href)
+                let urlSplit = /.*\/user\/([^\/]*)\/?(.*)/.exec(this.href)
                 if(urlSplit[2])return
                 userData.id = urlSplit[1]
             }
