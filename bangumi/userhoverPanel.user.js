@@ -22,15 +22,12 @@
             }
             layout.innerHTML = `<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>`
             //...
-            const userData = {
-                href: this.href,
-                id: this.href.split('/').pop(),
-            }
+            const userData = {}
             if (this.onclick) {
                 userData.id = this.onclick.toString().split("'")[1]
             } else {
                 let urlSplit = /.*\/user\/([^\/]*)\/?(.*)/.exec(this.href)
-                if(urlSplit[2])return
+                if (urlSplit[2]) return
                 userData.id = urlSplit[1]
             }
             userData.href = '/user/' + userData.id
@@ -45,7 +42,7 @@
                         dataType: 'text',
                         success: e => {
                             userData.self = /<a class="avatar" href="([^"]*)">/.exec(e)[1].split('/').pop()
-                            if(userData.self != userData.id){
+                            if (userData.self != userData.id) {
                                 userData.sinkuro = /mall class="hot">\/([^<]*)<\/small>/.exec(e)[1]
                                 userData.sinkuroritsu = /<span class="percent" style="width:([^"]*)">/.exec(e)[1]
                                 userData.addFriend = /<a href="([^"']*)" id="connectFrd" class="chiiBtn">/.exec(e)
