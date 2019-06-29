@@ -205,7 +205,7 @@
         .user-info {
             display: inline-block;
             vertical-align: top;
-            width: 220px;
+            max-width: 250px;
             margin: 0 0 10px 10px;
         }
         .user-info .user-name {

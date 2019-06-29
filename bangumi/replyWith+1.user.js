@@ -11,7 +11,7 @@
         , $form_action = $mainForm.attr('action')
         , $lastview_timestamp = $mainForm.find('[name=lastview]')
         , $formhash = $mainForm.find('[name=formhash]').val();
-    $('.tip_i').each(function () {
+    $('.tip_i.icons_cmt').each(function () {
         if(this.onclick){
             const paramas = this.onclick.toString().split(',')
         }else{
