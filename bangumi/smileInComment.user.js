@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         在吐槽里显示bgm表情
 // @namespace    https://github.com/shadowdreamer/jioben/tree/master/bangumi
-// @version      0.1
+// @version      0.2
 // @description  *
 // @author       cureDovahkiin
 // @include      /^https?://(bgm\.tv|bangumi\.tv|chii\.in)\/subject\/.*
@@ -16,13 +16,13 @@
             dom.innerHTML = dom.innerHTML.replace(/\(bgm[0-9]*\)/g, s => `<img src="${smiles[s]}" alt="${s}">`)
         }
     }
-    $('.text,.status,.even.reply_item').each(function () {
+    $('.text,.status,.even.reply_item, .SidePanel.png_bg, .collectInfo').each(function () {
         henshin(this)
     })
     $(document).ajaxComplete(function (ev, xhr, setting) {
         if (/\(bgm[0-9]*\)/.test(xhr.responseText) && /timeline/.test(setting.url)) {
             setTimeout(() => {
-                $('.status,.even.reply_item').each(function () {
+                $('.status,.even.reply_item, .SidePanel.png_bg, .collectInfo').each(function () {
                     if (/\(bgm[0-9]*\)/.test(this.innerText)) {
                         henshin(this)
                         const _this = this
