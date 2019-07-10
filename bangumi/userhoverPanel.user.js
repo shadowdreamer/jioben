@@ -10,165 +10,171 @@
 (function () {
     let locker = false
     $('[href^="/user"].l,[href^="/user"].avatar,#pm_sidebar a[onclick^="AddMSG"]').each(function () {
-        $(this).mouseover(function () {
-            if (locker) return false
-            if (this.text == "查看好友列表" || $(this).find('.avatarSize75').length > 0) return false
-            locker = true
-            const layout = document.createElement('div')
-            let timer = null
-            $(layout).addClass('user-hover')
-            if ($(this).hasClass('avatar')) {
-                $(layout).addClass('fix-avatar-hover')
-            }
-            layout.innerHTML = `<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>`
-            //...
-            const userData = {}
-            if (this.onclick) {
-                userData.id = this.onclick.toString().split("'")[1]
-            } else {
-                let urlSplit = /.*\/user\/([^\/]*)\/?(.*)/.exec(this.href)
-                if (urlSplit[2]) return
-                userData.id = urlSplit[1]
-            }
-            userData.href = '/user/' + userData.id
-            const req = {
-                req1: null,
-                req2: null
-            }
-            Promise.all([
-                new Promise((r, j) => {
-                    req.req1 = $.ajax({
-                        url: userData.href,
-                        dataType: 'text',
-                        success: e => {
-                            userData.self = /<a class="avatar" href="([^"]*)">/.exec(e)[1].split('/').pop()
-                            if (userData.self != userData.id) {
-                                userData.sinkuro = /mall class="hot">\/([^<]*)<\/small>/.exec(e)[1]
-                                userData.sinkuroritsu = /<span class="percent" style="width:([^"]*)">/.exec(e)[1]
-                                userData.addFriend = /<a href="([^"']*)" id="connectFrd" class="chiiBtn">/.exec(e)
-                                userData.addFriend = userData.addFriend ? userData.addFriend[1] : false
+        let timer = null
+        $(this).hover(function () {
+            timer = setTimeout(() => {
+                if (locker) return false
+                if (this.text == "查看好友列表" || $(this).find('.avatarSize75').length > 0) return false
+                locker = true
+                const layout = document.createElement('div')
+                let timer = null
+                $(layout).addClass('user-hover')
+                if ($(this).hasClass('avatar')) {
+                    $(layout).addClass('fix-avatar-hover')
+                }
+                layout.innerHTML = `<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>`
+                //...
+                const userData = {}
+                if (this.onclick) {
+                    userData.id = this.onclick.toString().split("'")[1]
+                } else {
+                    let urlSplit = /.*\/user\/([^\/]*)\/?(.*)/.exec(this.href)
+                    if (urlSplit[2]) return
+                    userData.id = urlSplit[1]
+                }
+                userData.href = '/user/' + userData.id
+                const req = {
+                    req1: null,
+                    req2: null
+                }
+                Promise.all([
+                    new Promise((r, j) => {
+                        req.req1 = $.ajax({
+                            url: userData.href,
+                            dataType: 'text',
+                            success: e => {
+                                userData.self = /<a class="avatar" href="([^"]*)">/.exec(e)[1].split('/').pop()
+                                if (userData.self != userData.id) {
+                                    userData.sinkuro = /mall class="hot">\/([^<]*)<\/small>/.exec(e)[1]
+                                    userData.sinkuroritsu = /<span class="percent" style="width:([^"]*)">/.exec(e)[1]
+                                    userData.addFriend = /<a href="([^"']*)" id="connectFrd" class="chiiBtn">/.exec(e)
+                                    userData.addFriend = userData.addFriend ? userData.addFriend[1] : false
+                                }
+                                userData.joinDate = /Bangumi<\/span> <span class="tip">([^<]*)<\/span>/.exec(e)[1]
+                                userData.lastEvent = /<small class="time">([^<]*)<\/small><\/li><li>/.exec(e)[1]
+                                userData.watch = Array.from(e.match(/<a href="\/anime\/list[^>=]*>([0-9]{1,4}[^<]*)/g) || [], el => />([0-9]{1,5}.*)/.exec(el)[1])
+                                r()
+                            },
+                            error: () => {
+                                j()
                             }
-                            userData.joinDate = /Bangumi<\/span> <span class="tip">([^<]*)<\/span>/.exec(e)[1]
-                            userData.lastEvent = /<small class="time">([^<]*)<\/small><\/li><li>/.exec(e)[1]
-                            userData.watch = Array.from(e.match(/<a href="\/anime\/list[^>=]*>([0-9]{1,5}[^<]*)/g) || [], el => />([0-9]{1,5}.*)/.exec(el)[1])
-                            r()
-                        },
-                        error: () => {
-                            j()
-                        }
-                    })
-                }),
-                new Promise((r, j) => {
-                    req.req2 = $.ajax({
-                        url: 'https://api.bgm.tv/user/' + userData.id,
-                        dataType: 'json',
-                        success: e => {
-                            userData.name = e.nickname
-                            userData.avatar = e.avatar.large.replace(/https?/, 'https')
-                            userData.sign = e.sign
-                            userData.url = e.url
-                            userData.message = `https://bgm.tv/pm/compose/${e.id}.chii`
-                            r()
-                        },
-                        error: () => {
-                            j()
-                        }
-                    })
-                })
-            ]).then(() => {
-                layout.innerHTML = `
-                <img class='avater' src="${userData.avatar}"/>
-                <div class='user-info'>
-                    <p class='user-name'><a href="${userData.href}" target="_blank">${userData.name} </a></p>
-                    <p class='user-joindate'>${userData.joinDate}</p>
-                    <p class='user-sign'>${userData.sign}</p>
-                </div>
-                ${
-                    userData.sinkuro ? `
-                    <div class="shinkuro">
-                    <div style="width:${userData.sinkuroritsu}" class="shinkuroritsu"></div>
-                    <div class="shinkuro-text">
-                        <span>${userData.sinkuro}</span> 
-                        <span>同步率：${userData.sinkuroritsu}</span> 
-                    </div>                                      
-                    </div>
-                    `: ''
-                    }                
-                <div class='user-watch'>
-                  ${(function () {
-                        let tmp = ''
-                        userData.watch.forEach(el => {
-                            tmp += `<span>${el}</span>`
                         })
-                        return tmp
-                    })()}
-                </div>
-                <span class='user-lastevent'>Last@${userData.lastEvent}</span>
-                <a class = 'hover-panel-btn' href="${userData.message}" target="_blank">发送短信</a>
-                <span id="panel-friend">
-                ${ userData.addFriend ? `
-                        <a class='hover-panel-btn' href="${userData.addFriend}" id='PanelconnectFrd' href="javascript:void(0)">添加好友</a>                    
-                    `: `
-                ${ userData.id == userData.self ? '' : `<span class = 'my-friend' >我的好友</span>`}
-                    `}
-                </span>
-                `
-
-                $(layout).addClass('dataready')
-                $('#PanelconnectFrd').click(function () {
-                    $('#panel-friend').html(`<span class='my-friend'>正在添加...</span>`)
-                    $("#robot").fadeIn(500);
-                    $("#robot_balloon").html(AJAXtip['wait'] + AJAXtip['addingFrd'])
-                    $.ajax({
-                        type: "GET",
-                        url: this + '&ajax=1',
-                        success: function (html) {
-                            $('#PanelconnectFrd').hide()
-                            $('#panel-friend').html(`<span class = 'my-friend' >我的好友</span>`)
-                            $("#robot_balloon").html(AJAXtip['addFrd'])
-                            $("#robot").animate({
-                                opacity: 1
-                            }, 1000).fadeOut(500)
-                            localStorage.removeItem('bgmFriends')
-                        },
-                        error: function (html) {
-                            $("#robot_balloon").html(AJAXtip['error'])
-                            $("#robot").animate({
-                                opacity: 1
-                            }, 1000).fadeOut(500)
-                            $('#panel-friend').html(`<span class='my-friend-fail'>添加失败,稍后再试</span>`)
-                        }
+                    }),
+                    new Promise((r, j) => {
+                        req.req2 = $.ajax({
+                            url: 'https://api.bgm.tv/user/' + userData.id,
+                            dataType: 'json',
+                            success: e => {
+                                userData.name = e.nickname
+                                userData.avatar = e.avatar.large.replace(/https?/, 'https')
+                                userData.sign = e.sign
+                                userData.url = e.url
+                                userData.message = `https://bgm.tv/pm/compose/${e.id}.chii`
+                                r()
+                            },
+                            error: () => {
+                                j()
+                            }
+                        })
                     })
-                    return false
-                })
-            }).catch(() => {
-                layout.innerHTML = `
-                <p style='font-size:16px; margin:25px 30px'>
-                <img style="height:15px;width:16px" src='/img/smiles/tv/15.gif'/><br/>
-                请求失败，请稍后再试。<br/><br/>或者使用<a href='https://bgm.tv'>bgm.tv</a>域名，</p>`
-                $(layout).addClass('dataready')
-            })
-            function removeLayout () {
-                setTimeout(() => {
-                    $(layout).remove()
-                    locker = false
-                    req.req1.abort()
-                    req.req2.abort()
-                }, 300);
-            }
-            $(this).after(layout).mouseout(function () {
-                timer = setTimeout(() => {
-                    removeLayout()
-                }, 300);
-            })
-            $(layout).hover(function () {
-                clearTimeout(timer)
-            }, function () {
-                removeLayout()
-            })
-            return false
-        })
+                ]).then(() => {
+                    layout.innerHTML = `
+                        <img class='avater' src="${userData.avatar}"/>
+                        <div class='user-info'>
+                            <p class='user-name'><a href="${userData.href}" target="_blank">${userData.name} </a></p>
+                            <p class='user-joindate'>${userData.joinDate}</p>
+                            <p class='user-sign'>${userData.sign}</p>
+                        </div>
+                        ${
+                        userData.sinkuro ? `
+                            <div class="shinkuro">
+                            <div style="width:${userData.sinkuroritsu}" class="shinkuroritsu"></div>
+                            <div class="shinkuro-text">
+                                <span>${userData.sinkuro}</span> 
+                                <span>同步率：${userData.sinkuroritsu}</span> 
+                            </div>                                      
+                            </div>
+                            `: ''
+                        }                
+                        <div class='user-watch'>
+                          ${(function () {
+                            let tmp = ''
+                            userData.watch.forEach(el => {
+                                tmp += `<span>${el}</span>`
+                            })
+                            return tmp
+                        })()}
+                        </div>
+                        <span class='user-lastevent'>Last@${userData.lastEvent}</span>
+                        <a class = 'hover-panel-btn' href="${userData.message}" target="_blank">发送短信</a>
+                        <span id="panel-friend">
+                        ${ userData.addFriend ? `
+                                <a class='hover-panel-btn' href="${userData.addFriend}" id='PanelconnectFrd' href="javascript:void(0)">添加好友</a>                    
+                            `: `
+                        ${ userData.id == userData.self ? '' : `<span class = 'my-friend' >我的好友</span>`}
+                            `}
+                        </span>
+                        `
 
+                    $(layout).addClass('dataready')
+                    $('#PanelconnectFrd').click(function () {
+                        $('#panel-friend').html(`<span class='my-friend'>正在添加...</span>`)
+                        $("#robot").fadeIn(500);
+                        $("#robot_balloon").html(AJAXtip['wait'] + AJAXtip['addingFrd'])
+                        $.ajax({
+                            type: "GET",
+                            url: this + '&ajax=1',
+                            success: function (html) {
+                                $('#PanelconnectFrd').hide()
+                                $('#panel-friend').html(`<span class = 'my-friend' >我的好友</span>`)
+                                $("#robot_balloon").html(AJAXtip['addFrd'])
+                                $("#robot").animate({
+                                    opacity: 1
+                                }, 1000).fadeOut(500)
+                                localStorage.removeItem('bgmFriends')
+                            },
+                            error: function (html) {
+                                $("#robot_balloon").html(AJAXtip['error'])
+                                $("#robot").animate({
+                                    opacity: 1
+                                }, 1000).fadeOut(500)
+                                $('#panel-friend').html(`<span class='my-friend-fail'>添加失败,稍后再试</span>`)
+                            }
+                        })
+                        return false
+                    })
+                }).catch(() => {
+                    layout.innerHTML = `
+                        <p style='font-size:16px; margin:25px 30px'>
+                        <img style="height:15px;width:16px" src='/img/smiles/tv/15.gif'/><br/>
+                        请求失败，请稍后再试。<br/><br/>或者使用<a href='https://bgm.tv'>bgm.tv</a>域名，</p>`
+                    $(layout).addClass('dataready')
+                })
+                function removeLayout () {
+                    setTimeout(() => {
+                        $(layout).remove()
+                        locker = false
+                        req.req1.abort()
+                        req.req2.abort()
+                    }, 200);
+                }
+                $(this).after(layout).mouseout(function () {
+                    timer = setTimeout(() => {
+                        removeLayout()
+                    }, 200);
+                })
+                $(layout).hover(function () {
+                    clearTimeout(timer)
+                }, function () {
+                    removeLayout()
+                })
+                return false
+            }, 300)
+        },
+            function () {
+                clearTimeout(timer)
+            }
+        )
     })
 
     const style = document.createElement("style");
