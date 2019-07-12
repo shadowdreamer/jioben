@@ -51,7 +51,7 @@
                                     userData.addFriend = userData.addFriend ? userData.addFriend[1] : false
                                 }
                                 userData.joinDate = /Bangumi<\/span> <span class="tip">([^<]*)<\/span>/.exec(e)[1]
-                                userData.lastEvent = /<small class="time">([^<]*)<\/small><\/li><li>/.exec(e)[1]
+                                userData.lastEvent = /<small class="time">([^<]*)<\/small>/.exec(e)[1]
                                 userData.watch = Array.from(e.match(/<a href="\/anime\/list[^>=]*>([0-9]{1,4}[^<]*)/g) || [], el => />([0-9]{1,5}.*)/.exec(el)[1])
                                 r()
                             },
