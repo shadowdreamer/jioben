@@ -51,7 +51,7 @@
                                     userData.addFriend = userData.addFriend ? userData.addFriend[1] : false
                                 }
                                 userData.joinDate = /Bangumi<\/span> <span class="tip">([^<]*)<\/span>/.exec(e)[1]
-                                userData.lastEvent = /<small class="time">([^<]*)<\/small>/.exec(e)[1]
+                                userData.lastEvent = /<small class="time">([^<]*)<\/small><\/li>/.exec(e)
                                 userData.watch = Array.from(e.match(/<a href="\/anime\/list[^>=]*>([0-9]{1,4}[^<]*)/g) || [], el => />([0-9]{1,5}.*)/.exec(el)[1])
                                 r()
                             },
@@ -105,7 +105,7 @@
                             return tmp
                         })()}
                         </div>
-                        <span class='user-lastevent'>Last@${userData.lastEvent}</span>
+                        <span class='user-lastevent'>Last@${userData.lastEvent?userData.lastEvent[1]:''}</span>
                         <a class = 'hover-panel-btn' href="${userData.message}" target="_blank">发送短信</a>
                         <span id="panel-friend">
                         ${ userData.addFriend ? `
