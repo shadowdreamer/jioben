@@ -81,8 +81,8 @@
                     layout.innerHTML = `
                         <img class='avater' src="${userData.avatar}"/>
                         <div class='user-info'>
-                            <p class='user-name'><a href="${userData.href}" target="_blank">${userData.name} </a></p>
-                            <p class='user-joindate'>${userData.joinDate}</p>
+                            <p class='user-name'><a href="${userData.href}" target="_blank">${userData.name}</a></p>
+                            <p class='user-joindate'>${userData.joinDate}</p><span class='user-id'>@${userData.id}</span>
                             <p class='user-sign'>${userData.sign}</p>
                         </div>
                         ${
@@ -105,7 +105,7 @@
                             return tmp
                         })()}
                         </div>
-                        <span class='user-lastevent'>Last@${userData.lastEvent?userData.lastEvent[1]:''}</span>
+                        <span class='user-lastevent'>Last@${userData.lastEvent ? userData.lastEvent[1] : ''}</span>
                         <a class = 'hover-panel-btn' href="${userData.message}" target="_blank">发送短信</a>
                         <span id="panel-friend">
                         ${ userData.addFriend ? `
@@ -224,7 +224,12 @@
             color: white;
             border-radius: 10px;
             padding: 0 10px;
-            margin: 8px 0 3px;
+            margin: 8px 4px 3px 0px;
+        }
+        .user-info .user-id{
+            font-size: 12px;
+            font-weight:normal;
+            color:#ec5c68
         }
         .user-info .user-sign {
             word-break: break-all;
@@ -280,6 +285,7 @@
         }
         a.hover-panel-btn:hover{
             background: #b4696f;
+            color: white;
         }
         span.my-friend{
             display: inline-block;
