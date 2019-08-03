@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         标记楼主和好友
 // @namespace    https://github.com/shadowdreamer/jioben/tree/master/bangumi
-// @version      0.3
+// @version      0.5
 // @description  好友列表缓存在本地
 // @author       cureDovahkiin
 // @include      /^https?://(bgm\.tv|bangumi\.tv|chii\.in)\/.*  
@@ -21,16 +21,18 @@
             stamp: now,
             friends: {}
         }
+        let selfid = $("#dock a")[0].href.split('/').pop()
         $.ajax({
             url: $("#dock a")[0].href + '/friends',
             method: 'GET',
             dataType: 'text',
             success: function (res) {
-                let filter =  /<a href="\/user\/([^"]*)" class="avatar">\n<span class="userImage">/g
+                let filter =  /<a href="\/user\/([^"]*)" class="avatar">/g
                 let anchor
                 while(( anchor = filter.exec(res)) !== null){
                     newData.friends[anchor[1]] = true
                 }
+                delete newData.friends[selfid]
                 localStorage.setItem('bgmFriends', JSON.stringify(newData))
                 resolve(newData)
             }
@@ -50,7 +52,7 @@
             </span>` : ''}
             </span>
             `
-            if (badge) $(all[i]).after($(badge))
+            if (badge.length>20) $(all[i]).after($(badge))
         }
     });
     const style = document.createElement("style");
