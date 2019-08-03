@@ -7,7 +7,16 @@
 // @include      /^https?://(bgm\.tv|bangumi\.tv|chii\.in)\/.*
 // ==/UserScript==
 const RIP = [
-    '京都アニメーション'
+    "宇田淳一",
+    "大村勇貴",
+    "笠間結花",
+    "木上益治",
+    "栗木亜美",
+    "武本康弘",
+    "津田幸恵",
+    "西屋太志",
+    "横田圭佑",
+    "渡邊美希子",
 ]
 if(RIP.includes($('.nameSingle a').text())){
     $('body').css('filter','grayscale(1)')
