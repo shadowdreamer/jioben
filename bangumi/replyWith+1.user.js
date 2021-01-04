@@ -12,12 +12,8 @@
         , $lastview_timestamp = $mainForm.find('[name=lastview]')
         , $formhash = $mainForm.find('[name=formhash]').val();
     $('.tip_i.icons_cmt').each(function () {
-        if(this.onclick){
-            const paramas = this.onclick.toString().split(',')
-        }else{
-            return
-        }
-            const [type, topic_id, post_id, sub_reply_id, sub_reply_uid, post_uid] = paramas
+        const paramas = this.onclick.toString().split(',')   
+        const [type, topic_id, post_id, sub_reply_id, sub_reply_uid, post_uid] = paramas
         if (sub_reply_id == 0) {
             const counter = $(this).parent().find('.sub_reply_collapse').length,
                 data = {
