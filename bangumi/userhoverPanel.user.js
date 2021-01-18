@@ -9,7 +9,7 @@
 
 (function () {
     let locker = false
-    $('[href^="/user"].l,[href^="/user"].avatar,#pm_sidebar a[onclick^="AddMSG"]').each(function () {
+    $('[href*="/user/"].l,[href*="/user/"].avatar,#pm_sidebar a[onclick^="AddMSG"]').each(function () {
         let timer = null
         $(this).hover(function () {
             timer = setTimeout(() => {
