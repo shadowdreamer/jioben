@@ -76,6 +76,7 @@
                         if(this.lastList.length>10){
                             this.lastList.pop()
                         }
+                        this.saveToLocal()
                     }
                     this.showLarge = false;
                     this.showSmall = false;
