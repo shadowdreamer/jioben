@@ -91,6 +91,11 @@ estree-walker@^2.0.1:
   resolved "https://registry.yarnpkg.com/estree-walker/-/estree-walker-2.0.2.tgz#52f010178c2a4c117a7757cfe942adb7d2da4cac"
   integrity sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==
 
+is-plain-object@3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/is-plain-object/-/is-plain-object-3.0.1.tgz#662d92d24c0aa4302407b0d45d21f2251c85f85b"
+  integrity sha512-Xnpx182SBMrr/aBik8y+GuR4U1L9FqMSojwDQwPMmxyC6bvEqly9UBCxhauBF5vNh2gwWJNX6oDV7O+OM4z34g==
+
 lodash@^4.17.19:
   version "4.17.20"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
@@ -105,6 +110,13 @@ to-fast-properties@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/to-fast-properties/-/to-fast-properties-2.0.0.tgz#dc5e698cbd079265bc73e0377681a4e4e83f616e"
   integrity sha1-3F5pjL0HkmW8c+A3doGk5Og/YW4=
+
+vue-types@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/vue-types/-/vue-types-2.0.2.tgz#a995ba3f22f6a1a81bd1d04096a548fcea97e11e"
+  integrity sha512-YXhDIGS//wc8NAGnMP6CTZ4AkU8PNEUzJ3hXAD+pKzdce+ea6JIfsqY3EWhzJopWPmlfyooTGHLZ7w1Ze/sRzQ==
+  dependencies:
+    is-plain-object "3.0.1"
 
 vue@^3.0.5:
   version "3.0.5"

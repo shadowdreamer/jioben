@@ -1,0 +1,4 @@
+.uploader{
+    transition: all .25s ease-in;
+    cursor: pointer;
+}
