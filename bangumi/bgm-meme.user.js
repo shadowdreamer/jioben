@@ -369,7 +369,8 @@
             font-size:12px;
             padding:1px 12px;
         }
-        .toolbar a{         
+        .toolbar a{       
+            color: #121212;  
             margin-left: 4px;   
             cursor: pointer;
         }
