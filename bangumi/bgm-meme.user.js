@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         bangumi自定义表情
 // @namespace    https://github.com/shadowdreamer/jioben
-// @version      0.1
+// @version      0.2
 // @description  邮件
 // @author       dovahkiin
 // @include      http*://bgm.tv*
@@ -72,11 +72,13 @@
                 insert(t){
                     targetArea.value += `[img]${t}[/img]`;
                     if(this.showLarge){
-                        this.lastList.push(t);
-                        if(this.lastList.length>10){
-                            this.lastList.pop()
+                        if(!this.lastList.includes(t)){
+                            this.lastList.push(t);
+                            if(this.lastList.length>15){
+                                this.lastList.pop()
+                            }
+                            this.saveToLocal()
                         }
-                        this.saveToLocal()
                     }
                     this.showLarge = false;
                     this.showSmall = false;
@@ -299,8 +301,8 @@
             box-shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12)
         }
         .small-board{
-            width: 164px;
-            height: 68px;            
+            width: 201px;
+            height: 122px;           
         }
         .lg-board{
             width:320px; 
@@ -309,12 +311,12 @@
         .sm-list{
             display: flex;
             flex-wrap: wrap;
-            padding: 2px;           
+            padding: 8px;           
         }
         .sm-item{
-            height: 30px;
-            width:30px;
-            border:1px solid #e2e2e2;
+            height: 35px;
+            width: 35px;
+            padding: 1px;
             display: flex;
             align-items: center;
             justify-content: center;
