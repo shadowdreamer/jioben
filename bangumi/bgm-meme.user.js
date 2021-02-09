@@ -182,6 +182,17 @@
                     targetArea = e.currentTarget 
                     Object.assign(this.position,getElementLT(targetArea))
                     this.show = true;
+                    const submitBtns = document.querySelectorAll('.inputBtn')
+                    const submitListener = (element)=>{
+                        const listener = ()=>{
+                            this.show = false;
+                            element.removeEventListener('click',listener )
+                        };
+                        return listener
+                    }
+                    submitBtns.forEach(el=>{
+                        el.addEventListener('click',submitListener(el))
+                    })
                 });
                 this.initImgClick()
             },
