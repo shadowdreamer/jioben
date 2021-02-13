@@ -4,7 +4,7 @@
 // @version      0.1
 // @description  *
 // @author       cureDovahkiin
-// @include      /^https?://(bgm\.tv|bangumi\.tv|chii\.in)\/.*
+// @include      /^https?:\/\/(bgm\.tv|bangumi\.tv|chii\.in)\/.*/
 // ==/UserScript==
 (function () {
     const list = document.querySelectorAll('.sub_reply_bg')
