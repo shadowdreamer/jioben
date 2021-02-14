@@ -16,7 +16,9 @@
     const list2 = document.querySelectorAll('.row_reply')
     list2.forEach(el=>{
         if(/<span class=\"tip\">内容已被用户删除<\/span>/.test(el.innerHTML)){
-            el.remove()
+            if(!el.querySelector('.topic_sub_reply')){
+                el.remove()
+            }
         }
     })
 })()
