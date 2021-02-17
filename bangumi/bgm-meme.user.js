@@ -1,11 +1,10 @@
 // ==UserScript==
 // @name         bangumi自定义表情
 // @namespace    https://github.com/shadowdreamer/jioben
-// @version      0.2
+// @version      0.3
 // @description  邮件
 // @author       dovahkiin
-// @include      http*://bgm.tv*
-// @include      http*://bangumi.tv*
+// @include      /^https?:\/\/(bgm\.tv|bangumi\.tv|chii\.in)\/.*/
 // ==/UserScript==
 
 (function(){   
@@ -180,7 +179,7 @@
                     this.emojiList = defaultEmojis;
                     this.saveToLocal()
                 }
-                $(document).on('click','textarea.reply',e=>{
+                $(document).on('click','textarea[name="content"]',e=>{
                     targetArea = e.currentTarget 
                     Object.assign(this.position,getElementLT(targetArea))
                     this.show = true;
