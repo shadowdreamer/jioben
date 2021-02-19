@@ -4,7 +4,7 @@
 // @version      0.3
 // @description  邮件
 // @author       dovahkiin
-// @include      /^https?:\/\/(bgm\.tv|bangumi\.tv|chii\.in)\/m\/.*/
+// @include      /^https?:\/\/(bgm\.tv|bangumi\.tv|chii\.in)\/m.*/
 // ==/UserScript==
 (()=>{
     let blockList = (()=>{
