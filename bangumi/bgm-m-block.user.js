@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         bangumi自定义表情
+// @name         超展开手机版屏蔽用户
 // @namespace    https://github.com/shadowdreamer/jioben
 // @version      0.3
 // @description  邮件
