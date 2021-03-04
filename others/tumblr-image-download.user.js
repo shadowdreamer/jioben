@@ -15,7 +15,7 @@
     let btn = document.createElement('li')
     btn.innerHTML = '<a>下载图片</a>'
     btn.href = "javascript:void(0)"
-    temp1.setAttribute('style','cursor:pointer')
+    btn.setAttribute('style','cursor:pointer')
     document.querySelector('.post_info').append(btn)
     btn.addEventListener('click',startDownload)
     
