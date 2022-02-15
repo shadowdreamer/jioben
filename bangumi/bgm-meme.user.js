@@ -7,7 +7,15 @@
 // @include      /^https?:\/\/(bgm\.tv|bangumi\.tv|chii\.in)\/.*/
 // ==/UserScript==
 
-(function(){   
+(function(){ 
+    function getParameterByName(name, url = window.location.href) {
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
     const defaultEmojis = [
         "https://static.saraba1st.com/image/smiley/face2017/001.png",
         "https://static.saraba1st.com/image/smiley/face2017/002.png",
@@ -32,12 +40,16 @@
         "https://static.saraba1st.com/image/smiley/face2017/021.png",
     ]
     let targetArea = null;
-    const script = document.createElement('script')
-    script.setAttribute('src', "https://cdn.jsdelivr.net/npm/vue/dist/vue.js")
-    script.onload = () => {
+    try{
         init()
+    }catch(err){
+        const script = document.createElement('script')
+        script.setAttribute('src', "https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js")
+        script.onload = () => {
+            init()
+        }
+        document.head.appendChild(script)
     }
-    document.head.appendChild(script)
     function init(){
         const warp = document.createElement('div');
         const instance = new Vue({
@@ -69,7 +81,14 @@
             },
             methods: {
                 insert(t){
-                    targetArea.value += `[img]${t}[/img]`;
+                    let bbcodeSize = getParameterByName('__bbcodeSize',t);
+                    let img = t.replace(/(&|\?)__bbcodeSize=[^&#]*/,'')
+                    if(bbcodeSize){
+                        targetArea.value += `[img=${bbcodeSize}]${img}[/img]`;
+                    }else{
+                        targetArea.value += `[img]${img}[/img]`;
+                    }
+                    
                     if(this.showLarge){
                         if(!this.lastList.includes(t)){
                             this.lastList.push(t);
@@ -152,8 +171,15 @@
                             <svg t="1612780482032"  viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2157" fill="currentColor"><path d="M928 544C928 561.664 913.664 576 896 576l-128 0 0 128c0 17.728-14.336 32-32 32S704 721.728 704 704L704 576 576 576C558.336 576 544 561.664 544 544S558.336 512 576 512l128 0L704 384c0-17.664 14.336-32 32-32S768 366.336 768 384l0 128 128 0C913.664 512 928 526.336 928 544zM532.544 829.888l15.296-12.672c36.928-30.592 70.208-58.112 100.16-83.776 13.44-11.456 14.976-31.68 3.52-45.12-11.456-13.376-31.616-14.976-45.12-3.52-28.288 24.192-59.712 50.176-94.336 78.848-153.024-126.72-237.568-197.248-285.952-289.28C192.32 410.368 183.424 348.736 200.384 296.256 213.12 256.768 240.64 224.896 277.888 206.4c34.944-17.344 77.248-19.136 116.48-4.864 39.872 14.592 72.128 44.544 88.384 82.176 10.112 23.36 48.64 23.36 58.752 0 16.256-37.568 48.448-67.52 88.32-82.112 39.04-14.4 81.536-12.608 116.544 4.8 63.36 31.488 94.656 96.64 83.584 174.336-2.496 17.472 9.664 33.664 27.2 36.16 17.216 2.112 33.728-9.664 36.16-27.2 14.848-104.768-30.528-196.992-118.528-240.64-50.624-25.152-111.552-27.84-166.976-7.616-37.952 13.888-71.04 37.76-95.68 68.288C487.424 179.2 454.336 155.328 416.32 141.44 360.832 121.152 300.032 123.968 249.408 149.12 196.608 175.296 157.568 220.544 139.456 276.544c-15.616 48.32-23.04 127.04 30.08 227.712 54.656 104 149.056 182.208 305.344 311.744l16.768 13.888c5.952 4.928 13.184 7.36 20.416 7.36S526.656 834.816 532.544 829.888z" p-id="2158"></path></svg>
                             `
                             document.body.append(menu)
-                            $(menu).on('click',()=>{ 
-                                this.emojiList.push(e.target.src);
+                            $(menu).on('click',()=>{
+                                const { height,width} = e.target;
+                                let src = e.target.src;
+                                if(src.indexOf('?')>0){
+                                    src+=`&__bbcodeSize=${height},${width}`
+                                }else{
+                                    src+=`?__bbcodeSize=${height},${width}`
+                                }
+                                this.emojiList.push(src);
                                 this.saveToLocal()
                                 $(menu).remove();
                             })
@@ -274,10 +300,12 @@
     const heads = document.getElementsByTagName("head");
     style.setAttribute("type", "text/css");
     style.innerHTML = /*css*/`
+        
         .uploader-warp{
             position: absolute;
         
         }
+        
         .uploader-btn{
             height:18px;
             width:18px;
@@ -298,6 +326,10 @@
             transition:all 0.2s ease-in;
             overflow:hidden;
             box-shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12)
+        }
+        html[data-theme='dark'] .emoji-board{
+            background:rgb(45 46 47);
+            color:white;
         }
         .small-board{
             width: 201px;
@@ -382,7 +414,6 @@
             padding:1px 12px;
         }
         .toolbar a{       
-            color: #121212;  
             margin-left: 4px;   
             cursor: pointer;
         }
@@ -396,6 +427,10 @@
             z-index:99;
             box-shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
             color:rgb(255 146 165);
+        }
+        html[data-theme='dark'] .meme-contextmenu{
+            background:rgb(45 46 47);
+            color:white;
         }
         .meme-contextmenu:hover{
             background:rgb(255 247 247)
