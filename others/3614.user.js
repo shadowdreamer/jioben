@@ -20,7 +20,6 @@
     const callback = function(mutationsList) {
       for(let mutation of mutationsList) {
         if (mutation.type === 'childList') {
-          console.log(mutation);
           if(mutation.addedNodes.length > 0){
             mutation.addedNodes.forEach(node=>{
               let html = node.innerHTML;
@@ -66,7 +65,6 @@
   findCommentLayer();
 
   function createDialog(){
-    console.log('create dialog');
     let warp = document.querySelector('.right-tools');
     let btn = document.createElement('a');
     btn.innerText = '设置屏蔽词';
