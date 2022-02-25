@@ -102,10 +102,10 @@
   GM_addStyle(/*css*/`
     .cmt
     {
-      font-size: 16px;
-      font-weight: 400;
+      font-size: 16px !important;
+      font-weight: 400 !important;
       pointer-events: none;
-      opacity: 0.6;
+      opacity: 0.8 !important;
     }
     #new-player-banner
     {
