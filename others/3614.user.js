@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         和谐3614
-// @namespace    shadowdreamer
+// @namespace    https://github.com/shadowdreamer/jioben
 // @version      0.1
 // @description  摸了;屏蔽热词，关键词屏蔽
-// @author       You
+// @author       shadowdreamer
 // @match        https://cc.163.com/361433*
 // @match         https://cc.163.com/20/5863183/
 // @grant        GM_addStyle
@@ -104,9 +104,10 @@
   GM_addStyle(/*css*/`
     .cmt
     {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 400;
       pointer-events: none;
+      opacity: 0.6;
     }
     #new-player-banner
     {
