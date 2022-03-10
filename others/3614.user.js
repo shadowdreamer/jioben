@@ -9,51 +9,49 @@
 // @grant        GM_addStyle
 // ==/UserScript==
 
-(function() {
-  let blockList = (window.localStorage.getItem('blockList') || '').split(',').filter(i=>i);
-  function fireCommnt(node){
-    node.style.display = 'none'
+(function () {
+  let blockList = (window.localStorage.getItem("blockList") || "").split(",").filter(i => i);
+  function fireCommnt(node) {
+    node.style.display = "none";
   }
-  function initCommentObs(){
-    const targetNode = document.querySelector('.comment-canvas');
+  function initCommentObs() {
+    const targetNode = document.querySelector(".comment-canvas");
     const config = { attributes: false, childList: true, subtree: true };
-    const callback = function(mutationsList) {
-      for(let mutation of mutationsList) {
-        if (mutation.type === 'childList') {
-          if(mutation.addedNodes.length > 0){
-            mutation.addedNodes.forEach(node=>{
+    const callback = function (mutationsList) {
+      for (let mutation of mutationsList) {
+        if (mutation.type === "childList") {
+          if (mutation.addedNodes.length > 0) {
+            mutation.addedNodes.forEach(node => {
               let html = node.innerHTML;
               // 屏蔽热词
-              if(html.indexOf('<img class=\"storm_bulletScreen_icon\"') !== -1){
-                fireCommnt(node)
-              };
+              if (html.indexOf('<img class="storm_bulletScreen_icon"') !== -1) {
+                fireCommnt(node);
+              }
               // check html has string in blockList
-              blockList.forEach(str=>{
-                if(html.indexOf(str) !== -1){
-                  fireCommnt(node)
+              blockList.forEach(str => {
+                if (html.indexOf(str) !== -1) {
+                  fireCommnt(node);
                 }
-              })
-
-            })
+              });
+            });
           }
         }
       }
     };
     const observer = new MutationObserver(callback);
     observer.observe(targetNode, config);
-
   }
-  
-  
-  function findCommentLayer(){
-    const targetNode = document.querySelector('.main-area');
+
+  function findCommentLayer() {
+    const targetNode = document.querySelector(".main-area");
     const config = { attributes: false, childList: true, subtree: true };
-    const callback = function(mutationsList, observer) {
-      for(let mutation of mutationsList) {
-        if (mutation.type === 'childList') {
-          if(mutation.target.className.includes('comment-canvas')){
+    const callback = function (mutationsList, observer) {
+      for (let mutation of mutationsList) {
+        if (mutation.type === "childList") {
+          if (mutation.target.className.includes("comment-canvas")) {
             initCommentObs();
-            createDialog()
+            createDialog();
+            addStyle();
             observer.disconnect();
           }
         }
@@ -61,17 +59,23 @@
     };
     const observer = new MutationObserver(callback);
     observer.observe(targetNode, config);
-  };
+  }
   findCommentLayer();
+  createDialog();
 
-  function createDialog(){
-    let warp = document.querySelector('.right-tools');
-    let btn = document.createElement('a');
-    btn.innerText = '设置屏蔽词';
-    btn.addEventListener('click',()=>{
-      let dialog = document.createElement('div');
-      dialog.className = 'dialog';
-      dialog.innerHTML = /*html*/`
+  function createDialog() {
+    if (document.querySelector("#block-btn-3614")) return;
+    let warp = document.querySelector(".tool-wrap");
+    let btn = document.createElement("div");
+    btn.id = "block-btn-3614";
+    btn.className = "chat-tool";
+    btn.innerText = "🚫";
+    btn.title = "屏蔽词";
+    btn.addEventListener("click", () => {
+      console.log("click");
+      let dialog = document.createElement("div");
+      dialog.className = "dialog";
+      dialog.innerHTML = /*html*/ `
         <div class="dialog-content">
           <h2>屏蔽列表</h2>
           <textarea id="dialog-input-blocklist"></textarea>
@@ -81,85 +85,90 @@
         </div>
       `;
       document.body.appendChild(dialog);
-      let input = document.querySelector('#dialog-input-blocklist');
-      input.value = blockList.join(',');
-      let btnConfirm = document.querySelector('#dialog-btn-confirm');
-      btnConfirm.addEventListener('click',()=>{
+      let input = document.querySelector("#dialog-input-blocklist");
+      input.value = blockList.join(",");
+      let btnConfirm = document.querySelector("#dialog-btn-confirm");
+      btnConfirm.addEventListener("click", () => {
         let blockListValue = input.value;
-        window.localStorage.setItem('blockList',blockListValue);
-        blockList = blockListValue.split(',').filter(i=>i);;
+        window.localStorage.setItem("blockList", blockListValue);
+        blockList = blockListValue.split(",").filter(i => i);
         dialog.remove();
       });
-      let btnCancel = document.querySelector('#dialog-btn-cancel');
-      btnCancel.addEventListener('click',()=>{
+      let btnCancel = document.querySelector("#dialog-btn-cancel");
+      btnCancel.addEventListener("click", () => {
         dialog.remove();
       });
     });
     warp.appendChild(btn);
-  };
+  }
+  function addStyle() {
+    const style = document.createElement("style");
+    style.id = "block-style-3614";
+    style.innerText = /*css*/ `
+  .cmt
+  {
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    pointer-events: none;
+    opacity: 0.8 !important;
+  }
+  #new-player-banner
+  {
+    display: none;
+  }
 
+  .gift-banner
+  {
+    display: none;
+  }
 
-  GM_addStyle(/*css*/`
-    .cmt
-    {
-      font-size: 16px !important;
-      font-weight: 400 !important;
-      pointer-events: none;
-      opacity: 0.8 !important;
-    }
-    #new-player-banner
-    {
-      display: none;
-    }
+  #room-tabs
+  {
+    display: none;
+  }
 
-    .gift-banner
-    {
-      display: none;
-    }
-
-    #room-tabs
-    {
-      display: none;
-    }
-
-    #chat-list-con
-    {
-      height: 100%;
-    }
-    .dialog{
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.5);
-      z-index: 9999;
-    }
-    .dialog-content{
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%,-50%);
-      width: 500px;
-      height: 300px;
-      background-color: #fff;
-      border-radius: 5px;
-      box-shadow: 0 0 10px #000;
-      padding:15px;
-    }
-    .dialog-content textarea{
-      width: 100%;
-      height: 30px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    .dialog-content button{
-      width: 100px;
-      height: 30px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      margin-left: 10px;
-      margin-top: 10px;
-    }
-  `)
+  #chat-list-con
+  {
+    height: 100%;
+  }
+  .dialog{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 9999;
+  }
+  .dialog-content{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: 500px;
+    height: 300px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px #000;
+    padding:15px;
+  }
+  .dialog-content textarea{
+    width: 100%;
+    height: 30px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    max-height: 223px;
+    max-width: 98%;
+  }
+  .dialog-content button{
+    width: 100px;
+    height: 30px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-left: 10px;
+    margin-top: 10px;
+  }
+  `;
+    document.querySelector("head").append(style);
+  }
 })();
