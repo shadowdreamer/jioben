@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         和谐3614
 // @namespace    https://github.com/shadowdreamer/jioben
-// @version      0.1
+// @version      0.2
 // @description  摸了;屏蔽热词，关键词屏蔽
 // @author       shadowdreamer
 // @match        https://cc.163.com/361433*
