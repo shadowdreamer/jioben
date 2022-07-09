@@ -14,9 +14,9 @@
 
   function insertBtn(){
     let localBtn = document.createElement('div');
-    localBtn.className="watch-info replace_video_source"
+    localBtn.className="watch-info ops replace_video_source"
     localBtn.innerHTML=`
-      <a>本地源替换</a>
+      <a>本地源  </a>
     `
     localBtn.onclick = function(){
       let picker = document.createElement('input');
@@ -34,21 +34,21 @@
 
 
     let onlineBtn = document.createElement('div');
-    onlineBtn.className="watch-info"
+    onlineBtn.className="watch-info ops"
     onlineBtn.innerHTML=`
-      <a>在线源替换</a>
+      <a>在线源</a>
     `;
     onlineBtn.onclick = function(){
       let url = prompt('输入在线源,确保可播放');
       replaceResouce(url)
     };
 
-    const bar = document.querySelector('#toolbar_module');
+    const bar = document.querySelector('#toolbar_module,#arc_toolbar_report');
     bar && bar.append(localBtn);
     bar && bar.append(onlineBtn);
   };
   function replaceResouce(url){
-    const vdo = document.querySelector('.bpx-player-video-wrap video')
+    const vdo = document.querySelector('.bpx-player-video-wrap video, .bilibili-player-video video')
     vdo.src = url;
   }
 
