@@ -6,7 +6,7 @@
 // @author       cure_dovahkiin
 // @match        https://www.bilibili.com/*
 // @icon         https://www.bilibili.com/favicon.ico?v=1
-// @grant        none
+// @license MIT
 // ==/UserScript==
 
 (function () {
