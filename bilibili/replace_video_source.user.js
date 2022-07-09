@@ -2,8 +2,8 @@
 // @name         替换逼站源
 // @namespace    https://github.com/shadowdreamer/jioben
 // @version      0.1
-// @description  try to take over the world!
-// @author       You
+// @description  通过本地或者在线视频替换b站播放视频
+// @author       cure_dovahkiin
 // @match        https://www.bilibili.com/*
 // @icon         https://www.bilibili.com/favicon.ico?v=1
 // @grant        none
