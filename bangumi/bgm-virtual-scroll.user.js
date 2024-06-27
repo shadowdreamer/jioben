@@ -13,6 +13,7 @@
   'use strict';
   const warp = $(`#comment_list`);
   if(!warp[0])return;
+  let warpH = warp.height();
   warp.css("min-height", `${warp.height()}px`)
     .css("position", `relative`);
   $('.row_state.clearit')
@@ -20,17 +21,19 @@
     .css("bottom", `0px`)
     .css('width', '100%')
   const list = $(`#comment_list>.row_reply`)
+  let wt = warp.offset().top;
   let wh = window.innerHeight;
   window.addEventListener("resize", function () {
     wh = window.innerHeight;
   })
   const heightStore = {
     map: [],
-    getByHeight: function (h) {
+    getIndexByHeight: function (h) {
       let i = 0, len = this.map.length;
       for (; i < len; i++) {
-        if (h <= this.map[i].top) break;
+        if (h < this.map[i].top) break;
       };
+      console.log(h,this.map[i].top)
       return i > 0 ? i - 1 : i;
     },
     getActiveIndex: function (center) {
@@ -72,22 +75,25 @@
   })
   const ob = new MutationObserver(() => {
     let offset = 0;
-    last_around.forEach((i) => {
+    list.each((i) => {
       let { height, top } = heightStore.map[i];
-      list.eq(i).css('transform', `translateY(${heightStore.map[i].top + offset}px)`);
-      offset+=list.eq(i).height()-height;
+      list.eq(i).css('transform', `translateY(${top + offset}px)`);
+      if(list.eq(i).height()>0){
+        offset+=list.eq(i).height()-height;
+      }
     })
+    warp.css("min-height", `${warpH + offset}px`);
   });
   ob.observe(warp[0], { childList: true, subtree: true });
-  
   $(document).on("scroll", function () {
     let st = $(document).scrollTop();
-    let index = heightStore.getByHeight(st);
+    let index = heightStore.getIndexByHeight(st-wt);
     let around = heightStore.getActiveIndex(index);
     let newIndex = around.filter((i) => !last_around.includes(i));
     let delIndex = last_around.filter((i) => !around.includes(i));
     last_around = around;
-    console.log(index, around);
+    console.log(heightStore);
+    console.log(wt,st,index, around);
     delIndex.forEach((i) => {
       list.eq(i).detach();
     })
