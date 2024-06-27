@@ -1,16 +1,18 @@
 // ==UserScript==
-// @name         虚拟列表
+// @name         BGM讨论串虚拟列表
 // @namespace    https://github.com/shadowdreamer/jioben/tree/master/bangumi
 // @version      0.1
-// @description  -
+// @description  用JQ手挫的虚拟列表，提升微弱性能，bug或许一堆，也许可以看看学姐楼
 // @author       cureDovahkiin
-// @include      /^https?://(bgm\.tv|bangumi\.tv|chii\.in)\/ep\/.*
+// @include      /^https?://(bgm\.tv|bangumi\.tv|chii\.in)\/.*
+// @icon         https://bgm.tv/img/favicon.ico
 // ==/UserScript==
 
 
 (function () {
   'use strict';
   const warp = $(`#comment_list`);
+  if(!warp[0])return;
   warp.css("min-height", `${warp.height()}px`)
     .css("position", `relative`);
   $('.row_state.clearit')
@@ -57,13 +59,17 @@
       height: $el.height(),
       top: _dh
     };
-    _dh += heightStore.map[i].height + 20;
+    _dh += heightStore.map[i].height + 20.5;
     $el.css('position', 'absolute')
       .css('width', '100%')
       .css('box-sizing', 'border-box');
   })
   list.detach();
-  let last_around = []
+  let last_around = heightStore.getActiveIndex(0);
+  last_around.forEach((i) => {
+    let node = list.eq(i)
+    node.css("transform", `translateY(${heightStore.map[i].top}px)`).appendTo(warp);
+  })
   const ob = new MutationObserver(() => {
     let offset = 0;
     last_around.forEach((i) => {
@@ -71,9 +77,9 @@
       list.eq(i).css('transform', `translateY(${heightStore.map[i].top + offset}px)`);
       offset+=list.eq(i).height()-height;
     })
-
   });
   ob.observe(warp[0], { childList: true, subtree: true });
+  
   $(document).on("scroll", function () {
     let st = $(document).scrollTop();
     let index = heightStore.getByHeight(st);
