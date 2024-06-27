@@ -33,7 +33,6 @@
       for (; i < len; i++) {
         if (h < this.map[i].top) break;
       };
-      console.log(h,this.map[i].top)
       return i > 0 ? i - 1 : i;
     },
     getActiveIndex: function (center) {
@@ -92,8 +91,6 @@
     let newIndex = around.filter((i) => !last_around.includes(i));
     let delIndex = last_around.filter((i) => !around.includes(i));
     last_around = around;
-    console.log(heightStore);
-    console.log(wt,st,index, around);
     delIndex.forEach((i) => {
       list.eq(i).detach();
     })
