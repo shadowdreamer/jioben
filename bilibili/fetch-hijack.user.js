@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         fetch hijack
+// @name         首页视频推荐 fetch hijack
 // @namespace    https://github.com/shadowdreamer/jioben
 // @version      0.1
-// @description  try to take over the world!
+// @description  funny 墨索李妮
 // @author       You
 // @match        https://www.bilibili.com/*
 // @icon         https://www.bilibili.com/favicon.ico?v=1
@@ -15,17 +15,50 @@
   const oFetch = window.fetch;
   async function myFetch () {
     const [url] = arguments;
-    if (url.includes('top/feed')) {
-      try {
-        const res = await oFetch(...arguments)
+
+    try {
+      const res = await oFetch(...arguments);
+      let myRes = res;
+      if (url.includes('top/feed')) { // 推荐流
         const json = await res.json();
         const { item } = json.data;
         const myItem = item.filter(el => {
           return !!el.id //鉴定为没有id的是广告
         })
-        const myRes = new Response(JSON.stringify({
-          ...json.data,
-          item: myItem
+        myRes = new Response(JSON.stringify({
+          ...json,
+          data: {
+            ...json.data,
+            item: myItem
+          }
+        }), {
+          status: res.status,
+          statusText: res.statusText,
+          headers: res.headers,
+        })
+      } else if (url.includes("xlive/web-interface")) {
+        // 狗屎直播
+        let json = await res.json();
+        myRes = new Response(JSON.stringify({
+          ...json,
+          data: {
+            ...json.data,
+            recommend_room_list: []
+          }
+        }), {
+          status: res.status,
+          statusText: res.statusText,
+          headers: res.headers,
+        })
+      } else if (url.includes("pgc/web/variety/feed")) {
+        // 综艺
+        let json = await res.json();
+        myRes = new Response(JSON.stringify({
+          ...json,
+          data: {
+            ...json.data,
+            list: []
+          }
         }), {
           status: res.status,
           statusText: res.statusText,
@@ -33,12 +66,14 @@
         })
         return new Promise(r => r(myRes))
 
-      } catch (err) {
-        console.log(err);
-        return oFetch(...arguments)
       }
+      return new Promise(r => r(myRes))
+
+
+    } catch (err) {
+      console.log(err);
+      return oFetch(...arguments)
     }
-    return oFetch(...arguments)
 
   }
   window.fetch = myFetch;
