@@ -43,6 +43,8 @@
   }
   window.fetch = myFetch;
 
+
+  // funny ssr 首屏广告
   window.addEventListener('load', () => {
     let cards = document.querySelectorAll('.feed-card')
     cards.forEach(el => {
