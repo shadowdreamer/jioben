@@ -4,24 +4,18 @@
 // @version      0.1
 // @description  try to take over the world!
 // @author       You
-// @match        https://www.bilibili.com/
+// @match        https://www.bilibili.com/*
 // @icon         https://www.bilibili.com/favicon.ico?v=1
-// @grant        none
+// @grant        GM_addStyle
 // ==/UserScript==
 
 (function () {
   "use strict";
 
-  const targetNode = document.querySelector(".bili-layout");
-  const config = { attributes: true, childList: true, subtree: true };
-  const callback = () => {
-    targetNode.querySelectorAll(".bili-grid").forEach(el => {
-      if (el.querySelector("#推广,#赛事")) {
-        el.remove();
-      }
-    });
-  };
-  const observer = new MutationObserver(callback);
-  observer.observe(targetNode, config);
-  callback();
+  GM_addStyle(`
+    .video-sections-content-list{
+        height: calc(100vh - 400px) !important;
+        max-height:unset !important;
+    }
+  `);
 })();
