@@ -14,10 +14,19 @@
   "use strict";
   const oFetch = window.fetch;
   async function myFetch () {
-    const [url] = arguments;
+    let [url,init] = arguments;
+    let [api,search] = url.split("?");
+    let searchObj = new URLSearchParams(search);
+    if (api.includes("top/feed")) {
+      searchObj.set("ps", 11);
+      url = `${api}?${searchObj.toString()}`
+    }
+    if (api.includes("data.bilibili.com")) { /**跟踪会被屏蔽不断报错，直接不请求*/
+      return Promise.reject({})
+    }
 
     try {
-      const res = await oFetch(...arguments);
+      const res = await oFetch(url,init);
       let myRes = res;
       if (url.includes('top/feed')) { // 推荐流
         const json = await res.json();
@@ -72,7 +81,7 @@
 
     } catch (err) {
       console.log(err);
-      return oFetch(...arguments)
+      return oFetch(url,init)
     }
 
   }
