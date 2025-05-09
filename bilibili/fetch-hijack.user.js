@@ -75,6 +75,9 @@
         })
         return new Promise(r => r(myRes))
 
+      }else if (url.includes("search/default")) {
+        // 搜索栏placeholder
+        return Promise.reject({})
       }
       return new Promise(r => r(myRes))
 
