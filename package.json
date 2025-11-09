@@ -1,9 +1,0 @@
-{
-  "devDependencies": {
-    "@types/jquery": "^3.5.5",
-    "vue-types": "^2.0.2"
-  },
-  "dependencies": {
-    "vue": "^3.0.5"
-  }
-}

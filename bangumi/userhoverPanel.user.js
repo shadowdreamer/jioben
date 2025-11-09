@@ -1,24 +1,94 @@
 // ==UserScript==
 // @name         bangumi鼠标移入显示用户信息悬浮框
 // @namespace    https://github.com/shadowdreamer/jioben/tree/master/bangumi
-// @version      0.3
+// @version      1.5
 // @description   
 // @author       cureDovahkiin
 // @include      /^https?://(bgm\.tv|bangumi\.tv|chii\.in)\/.*
 // ==/UserScript==
 
 (function () {
-    let locker = false
+    let locker = false;
+    // 本地缓存：1天TTL，最多缓存20个用户，使用LRU淘汰
+    const HOVER_CACHE_KEY = 'bgmUserHoverCache';
+    const HOVER_CACHE_TTL = 24 * 60 * 60 * 1000; // 1天
+    const HOVER_CACHE_MAX = 20;
+
+    function loadCache() {
+        try {
+            const raw = localStorage.getItem(HOVER_CACHE_KEY);
+            const now = Date.now();
+            let cache = raw ? JSON.parse(raw) : { version: 1, items: {} };
+            if (!cache || typeof cache !== 'object' || !cache.items) {
+                cache = { version: 1, items: {} };
+            }
+            // 清理过期项
+            Object.keys(cache.items).forEach(k => {
+                const it = cache.items[k];
+                if (!it || !it.stamp || (now - it.stamp) > HOVER_CACHE_TTL) {
+                    delete cache.items[k];
+                }
+            });
+            return cache;
+        } catch (e) {
+            return { version: 1, items: {} };
+        }
+    }
+
+    function saveCache(cache) {
+        try {
+            localStorage.setItem(HOVER_CACHE_KEY, JSON.stringify(cache));
+        } catch (e) {
+            // ignore quota errors
+        }
+    }
+
+    function cacheGet(key) {
+        const cache = loadCache();
+        const now = Date.now();
+        const it = cache.items[key];
+        if (it && (now - it.stamp) <= HOVER_CACHE_TTL) {
+            it.access = now;
+            saveCache(cache);
+            return it.data;
+        }
+        return null;
+    }
+
+    function cacheSet(key, data) {
+        const cache = loadCache();
+        const now = Date.now();
+        cache.items[key] = { data: data, stamp: now, access: now };
+        // 容量控制：超过最大值时按最近访问时间淘汰
+        const keys = Object.keys(cache.items);
+        if (keys.length > HOVER_CACHE_MAX) {
+            keys.sort((a, b) => {
+                const ia = cache.items[a]?.access || 0;
+                const ib = cache.items[b]?.access || 0;
+                return ia - ib; // 最旧的在前
+            });
+            const removeCount = keys.length - HOVER_CACHE_MAX;
+            for (let i = 0; i < removeCount; i++) {
+                delete cache.items[keys[i]];
+            }
+        }
+        saveCache(cache);
+    }
     $('[href*="/user/"].l,[href*="/user/"].avatar,#pm_sidebar a[onclick^="AddMSG"]').each(function () {
         let timer = null
         $(this).hover(function () {
+            // get element screen position
+            const pos = $(this).offset();
             timer = setTimeout(() => {
                 if (locker) return false
                 if (this.text == "查看好友列表" || $(this).find('.avatarSize75').length > 0) return false
                 locker = true
                 const layout = document.createElement('div')
                 let timer = null
-                $(layout).addClass('user-hover')
+                $(layout).addClass('user-hover').css({
+                    top: pos.top + 10 + 'px',
+                    left: pos.left + 'px'
+                })
                 if ($(this).hasClass('avatar')) {
                     $(layout).addClass('fix-avatar-hover')
                 }
@@ -37,8 +107,11 @@
                     req1: null,
                     req2: null
                 }
+                const cached = cacheGet(userData.href);
+                if (cached) { Object.assign(userData, cached); }
+                const noopReq = { abort: function () {} };
                 Promise.all([
-                    new Promise((r, j) => {
+                    cached ? new Promise((r) => { req.req1 = noopReq; r(); }) : new Promise((r, j) => {
                         req.req1 = $.ajax({
                             url: userData.href,
                             dataType: 'text',
@@ -52,7 +125,13 @@
                                 }
                                 userData.joinDate = /Bangumi<\/span> <span class="tip">([^<]*)<\/span>/.exec(e)[1]
                                 userData.lastEvent = /<small class="time">([^<]*)<\/small><\/li>/.exec(e)
-                                userData.watch = Array.from(e.match(/<a href="\/anime\/list[^>=]*>([0-9]{1,4}[^<]*)/g) || [], el => />([0-9]{1,5}.*)/.exec(el)[1])
+                                userData.watch = Array.from(
+                                    e.match(/<a href="\/anime\/list\/[^"]+">[\s\S]*?<span class="type">[^<]+<\/span>\s*<span class="num">[0-9]+<\/span>[\s\S]*?<\/a>/g) || [],
+                                    el => {
+                                        const m = /<span class="type">([^<]+)<\/span>\s*<span class="num">([^<]+)<\/span>/.exec(el)
+                                        return m ? `${m[1]} ${m[2]}` : ''
+                                    }
+                                );
                                 r()
                             },
                             error: () => {
@@ -60,7 +139,7 @@
                             }
                         })
                     }),
-                    new Promise((r, j) => {
+                    cached ? new Promise((r) => { req.req2 = noopReq; r(); }) : new Promise((r, j) => {
                         req.req2 = $.ajax({
                             url: 'https://api.bgm.tv/user/' + userData.id,
                             dataType: 'json',
@@ -82,11 +161,11 @@
                         <img class='avater' src="${userData.avatar}"/>
                         <div class='user-info'>
                             <p class='user-name'><a href="${userData.href}" target="_blank">${userData.name}</a></p>
-                            <p class='user-joindate'>${userData.joinDate}</p><span class='user-id'>@${userData.id}</span>
-                            <p class='user-sign'>${userData.sign}</p>
+                            <p class='user-joindate'>${userData.joinDate}</p>
+                            <span class='user-id'>@${userData.id}</span>
+                            <p class='user-sign'>${userData.sign || ' '}</p>
                         </div>
-                        ${
-                        userData.sinkuro ? `
+                        ${userData.sinkuro ? `
                             <div class="shinkuro">
                             <div style="width:${userData.sinkuroritsu}" class="shinkuroritsu"></div>
                             <div class="shinkuro-text">
@@ -108,13 +187,16 @@
                         <span class='user-lastevent'>Last@${userData.lastEvent ? userData.lastEvent[1] : ''}</span>
                         <a class = 'hover-panel-btn' href="${userData.message}" target="_blank">发送短信</a>
                         <span id="panel-friend">
-                        ${ userData.addFriend ? `
+                        ${userData.addFriend ? `
                                 <a class='hover-panel-btn' href="${userData.addFriend}" id='PanelconnectFrd' href="javascript:void(0)">添加好友</a>                    
                             `: `
-                        ${ userData.id == userData.self ? '' : `<span class = 'my-friend' >我的好友</span>`}
+                        ${userData.id == userData.self ? '' : `<span class = 'my-friend' >我的好友</span>`}
                             `}
                         </span>
                         `
+
+                    // 写入/更新缓存（提升最近访问时间）
+                    cacheSet(userData.href, userData);
 
                     $(layout).addClass('dataready')
                     $('#PanelconnectFrd').click(function () {
@@ -143,6 +225,7 @@
                         })
                         return false
                     })
+                    
                 }).catch(() => {
                     layout.innerHTML = `
                         <p style='font-size:16px; margin:25px 30px'>
@@ -158,7 +241,7 @@
                         req.req2.abort()
                     }, 200);
                 }
-                $(this).after(layout).mouseout(function () {
+                $(document.body).after(layout).mouseout(function () {
                     timer = setTimeout(() => {
                         removeLayout()
                     }, 200);
@@ -181,15 +264,22 @@
     const heads = document.getElementsByTagName("head");
     style.setAttribute("type", "text/css");
     style.innerHTML = `
+        html[data-theme=dark] .user-hover {
+            background: rgba(40,40,40,.8);
+            color: #fff;
+        }
         .user-hover {
             position: absolute;
-            background: white;
-            box-shadow: 0px 0px 4px 1px #ddd;
+            background: rgba(255,255,255,.8);
+            border-radius: 5px;
+            box-shadow:  0 10px 15px -3px #0000001a,0 4px 6px -4px #0000001a;
             transition: all .2s ease-in;
             transform: translate(0,6px);
             font-size: 12px;
             z-index:999;
-            color:#010101
+            color:#010101;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
         }
         .fix-avatar-hover{
             transform: translate(45px,20px)
@@ -199,9 +289,10 @@
             padding: 8px;
             font-weight: normal;
             text-align: left;
+            min-width: 300px;
         }
         span.user-lastevent {
-            color: #f67070;
+            color: var(--primary-color);
         }
         div.dataready img {
             height: 75px;
@@ -219,7 +310,7 @@
             font-weight: bold;
         }
         .user-info .user-joindate {
-            background-color: #f09199;
+            background-color: var(--primary-color);
             display: inline-block;
             color: white;
             border-radius: 10px;
@@ -229,7 +320,7 @@
         .user-info .user-id{
             font-size: 12px;
             font-weight:normal;
-            color:#ec5c68
+            color:var(--primary-color);
         }
         .user-info .user-sign {
             word-break: break-all;
@@ -237,13 +328,19 @@
         .user-watch {
             padding: 10px 0px 5px;
             margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            color: #2B2B2B;
+
         }
         .user-watch span {
             display: inline-block;
+            flex:1;
+            white-space: nowrap;
             margin-right: 3px;
             padding: 0px 4px;
-            border-left: 4px solid #f09199;
-            background-color: #fce9e9;
+            border-left: 4px solid var(--primary-color);
+            background-color:  oklch(from var(--primary-color) calc(l* 2) calc(c* 0.8) h);
         }
         .user-watch span:last-of-type {
             margin-right: 0;
@@ -251,8 +348,9 @@
         .shinkuro {
             width: 100%;
             height: 20px;
-            background-color: #fce9e9;
+            background-color: oklch(from var(--primary-color) calc(l* 2) calc(c* 0.8) h);
             line-height: 20px;
+            color: #2B2B2B;
         }
         .shinkuro-text {
             position: absolute;
@@ -263,7 +361,7 @@
             float: left;
             border-top-right-radius: 10px;
             border-bottom-right-radius: 10px;
-            background: linear-gradient(to right, #f9a9a9 0%,#fb788f 100%);
+            background: linear-gradient(to right, oklch(from var(--primary-color) calc(l* 2) calc(c* 0.6) h) 0%, var(--primary-color)  100%);
         }
         .shinkuro-text span:nth-of-type(1) {
             margin-left: 10px;
@@ -276,7 +374,7 @@
             display: inline-block;
             float: right;
             margin-bottom: 8px;
-            background: #f09199;
+            background: var(--primary-color);
             color: white;
             padding: 2px 8px;
             border-radius: 3px;
@@ -284,7 +382,7 @@
             transition: all .2s ease-in;
         }
         a.hover-panel-btn:hover{
-            background: #b4696f;
+            background: oklch(from var(--primary-color) l calc(c* 0.8) h);
             color: white;
         }
         span.my-friend{
@@ -324,7 +422,7 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: #f09199;
+            background: var(--primary-color);
             margin: -3px 0 0 -3px;
           }
           .lds-roller div:nth-child(1) {
