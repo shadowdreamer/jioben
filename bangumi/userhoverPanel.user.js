@@ -202,9 +202,24 @@
         });
     }
 
-    $('[href*="/user/"].l,[href*="/user/"].avatar,#pm_sidebar a[onclick^="AddMSG"]').each(function () {
+    // 用于跟踪已经绑定过hover事件的元素，避免重复绑定
+    const boundElements = new WeakSet();
+    
+    // 选择器字符串
+    const selector = '[href*="/user/"].l,[href*="/user/"].avatar,#pm_sidebar a[onclick^="AddMSG"]';
+    
+    // 绑定hover事件的函数
+    function bindHoverEvents(element) {
+        // 检查元素是否已经绑定过事件
+        if (boundElements.has(element)) {
+            return;
+        }
+        
+        // 标记元素已绑定
+        boundElements.add(element);
+        
         let timer = null
-        $(this).hover(
+        $(element).hover(
             function () {
                 // get element screen position
                 const pos = $(this).offset();
@@ -291,7 +306,40 @@
                 clearTimeout(timer)
             }
         )
-    })
+    }
+    
+    // 初始化：为现有元素绑定事件
+    $(selector).each(function () {
+        bindHoverEvents(this);
+    });
+    
+    // 使用MutationObserver监听DOM变化
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            // 检查添加的节点
+            if (mutation.addedNodes.length) {
+                mutation.addedNodes.forEach(function(node) {
+                    // 只处理元素节点
+                    if (node.nodeType === 1) {
+                        // 检查新添加的节点本身是否匹配选择器
+                        if ($(node).is(selector)) {
+                            bindHoverEvents(node);
+                        }
+                        // 检查新添加节点的子元素是否匹配选择器
+                        $(node).find(selector).each(function() {
+                            bindHoverEvents(this);
+                        });
+                    }
+                });
+            }
+        });
+    });
+    
+    // 开始观察DOM树变化
+    observer.observe(document.body, {
+        childList: true,      // 监听子节点的添加和删除
+        subtree: true         // 监听所有后代节点的变化
+    });
 
     const style = document.createElement("style");
     const heads = document.getElementsByTagName("head");
